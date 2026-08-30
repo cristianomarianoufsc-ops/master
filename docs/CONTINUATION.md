@@ -306,3 +306,7 @@ A comparação de `DD03` revelou `DD03=0xA0` no bloco 265 no caminho bloqueado. 
 ## Descoberta: comando A0 alcança DDD7, mas a tarefa permanece zerada
 
 O probe `DDD7–DDF6` confirmou que o comando `0xA0` chega ao grupo correto, mas `DDD7` permanece zero. Nos passes de inicialização em `0x8B8B–0x8B93`, `DDD7` e `DDEF–DDF2` são zerados; o dispatcher lê `DDD7=0` e não chama handler ativo. Não houve escrita `DDD7=0x80`. O relatório está em `build/command_a0_unarmed_task.md`. O próximo diagnóstico deve seguir a tabela/dados fornecidos a `sub_857C` e `sub_8536`, procurando por que a entrada do grupo A0 é nula.
+
+## Descoberta: tabelas do comando A0 têm ponteiros válidos
+
+A resolução estática do índice `0x10` do comando `0xA0` encontrou ponteiros válidos em `l836D→0xAB5F`, `l833D→0xA2C7` e `l82DD→0xAB72`, todos com cabeçalhos estruturados. A hipótese de entrada nula na ROM foi descartada. O próximo passo é identificar a tabela efetivamente selecionada pelo estado `EX AF,AF'` e verificar em runtime até onde `sub_8536` copia a estrutura para `DDD7`.
