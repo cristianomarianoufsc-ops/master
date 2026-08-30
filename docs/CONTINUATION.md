@@ -294,3 +294,7 @@ O probe de acessos confirmou que o estado de bloqueio reproduzível começa no b
 ## Descoberta: tarefa DD57 não é armada no caminho FFFF=0x0C
 
 A comparação direta do dispatcher no caminho bloqueado mostrou que ele executa, mas `DD57` permanece em `0` (escritas nos blocos 41, 46, 267, 277 e 278). No caminho que progride, `DD57` recebe `0x80` no bloco 789 e os handlers da tarefa são processados. O loop em `0x406F` ocorre porque `C203=1` aguarda essa tarefa sem que o bit 7 seja ativado. O diagnóstico está em `build/bank0c_task_block.md`; o resumidor `tools/summarize_memory_accesses.py` permite reproduzir a comparação.
+
+## Descoberta: FFFF=0x0C executa, mas não arma DD57
+
+A comparação do dispatcher confirmou que `FFFF=0x0C` não é banco ausente: `0x83E7` e os handlers de tarefa são executados. A diferença decisiva é que `DD57` permanece `0`, enquanto no caminho progressivo recebe `0x80`. O pedido chega a `0x406F` com `C203=1`, mas sem uma tarefa ativa para limpar o flag. O relatório está em `build/bank0c_dispatch_correlation.md`. O próximo diagnóstico deve comparar `DD03` e o índice de `sub_857C` entre os caminhos `0x0C` e `0x16`.
