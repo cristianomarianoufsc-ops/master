@@ -55,3 +55,9 @@ A rotina física em `0x8D16` do banco ROM 21 foi confirmada como a implementaç�
 O emulador `tools/emulate_04d16_exact.py` reproduz essa semântica. Com todas as fontes ativas, os tamanhos confirmados foram: AC47 = 12 registros, AC6C = 24, ACB5 = 2 e ACBC = 8. Os relatórios `build/exact_04d16_ac47.md`, `build/exact_04d16_ac6c.md`, `build/exact_04d16_acb5.md` e `build/exact_04d16_acbc.md` registram os destinos e máscaras. Isso elimina uma ambiguidade importante: AC47/AC6C/ACB5/ACBC não devem ser tratados como tabelas de 04CFD.
 
 Ainda falta emular o produtor `04BD5` e a rotina `04BBD -> 3954 -> RST 10h`, que fornecem os bytes de C032/C2B0/C2D0/C2E0 e os valores de C022/C025–C028/C215/C205/C251. Só depois dessa etapa será seguro declarar C280 completo.
+
+## Avanço atual: 04BD5 reconstruído
+
+A referência `04BD5` foi localizada no banco físico 21, no offset `0x0BD5`, quando `FFFE=0x15`; no endereço lógico ela aparece como `0x8BD5`. A rotina lê uma tabela com contador e registros de três bytes (`endereço little-endian` + `máscara`). Para cada registro, testa `(RAM[endereço] & máscara)` e grava `0x01` ou `0x00` em um buffer sequencial apontado pelo `DE` do conjunto alternado de registradores. O chamador usa `EXX`, portanto os papéis de leitura e escrita precisam ser modelados separadamente.
+
+`tools/emulate_04bd5_exact.py` reproduz essa operação e foi validado com AC47. O relatório `build/04bd5_exact_semantics.md` registra o disassembly e a consequência para a cadeia de C280. Isso confirma que `04BD5` produz bytes booleanos para as fontes de `04D16`; ainda falta reconstruir a cadeia de valores de RAM que antecede essa etapa.
