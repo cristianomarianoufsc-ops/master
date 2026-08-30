@@ -87,3 +87,9 @@ O Dega 1.12 não oferece um debugger moderno pronto para o nosso uso e a compila
 ## Reforço do protocolo de continuidade
 
 A partir desta etapa, toda descoberta ou alteração técnica significativa deve ser registrada imediatamente em `docs/CONTINUATION.md` ou em um relatório específico, validada com testes, revisada com `git diff --check`, commitada com mensagem no formato `area: descrição` e enviada com `git push origin main`. Antes de cada commit deve ser confirmado que ROMs, save states, dumps completos e outros artefatos locais permanecem ignorados e fora do Git. O último estado enviado inclui o executor SMS instrumentado no commit `d4d137f`; esta atualização registra o Dega e o plano de integração.
+
+## Etapa concluída: modelo VDP no capturador
+
+O `tools/run_sms_capture.py` agora contém um modelo VDP baseado em `mast/mem.cpp` do Dega: portas `BE/BF`, latch de comando de dois bytes, endereço de 14 bits, modos VRAM/CRAM, auto-incremento, registradores VDP e leitura de status. O relatório passou a incluir endereço, modo, status, registradores e contagem de bytes não nulos em VRAM/CRAM.
+
+A validação com a ROM foi bem-sucedida: o boot executou escritas VDP e produziu VRAM não vazia (`2626` bytes não nulos no teste), confirmando que a camada não está mais sendo simplesmente ignorada. O executor ainda não alcança `0x4A8D`; o ponto atual é uma rotina de espera/coordenação de hardware em torno de `0x04E4`, que depende do atendimento correto de VBlank/H-interrupt. A próxima etapa é modelar o agendamento e a aceitação de IRQ pelo núcleo Z80, sem transformar o stub de VDP em um valor artificial de RAM.

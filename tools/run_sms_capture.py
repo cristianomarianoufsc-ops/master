@@ -28,6 +28,10 @@ if len(rom) % 0x4000:
     raise SystemExit(f"ROM size must be a multiple of 0x4000, got {len(rom):#x}")
 banks = [rom[i:i + 0x4000] for i in range(0, len(rom), 0x4000)]
 ram = bytearray(0x2000)
+vram = bytearray(0x4000)
+cram = bytearray(0x40)
+vdp = {"low": 0, "wait": 0, "addr": 0, "mode": 0, "stat": 0,
+       "regs": bytearray(0x10)}
 mapper = {0xFFFC: 0, 0xFFFD: 0, 0xFFFE: 1, 0xFFFF: 0x82}
 reads = {}
 writes = {}
@@ -74,13 +78,56 @@ def write_mem(addr, value):
 
 
 def input_port(port):
-    # No controller/VDP timing is modeled. Open-bus zero is explicit.
-    return 0
+    port &= 0xFF
+    if port == 0xBE:
+        value = vram[vdp["addr"] & 0x3FFF]
+        vdp["addr"] = (vdp["addr"] + 1) & 0x3FFF
+        vdp["wait"] = 0
+        return value
+    if port == 0xBF:
+        value = vdp["stat"] | 0x20
+        vdp["stat"] &= 0x3F
+        vdp["wait"] = 0
+        return value
+    if port == 0x7E:
+        return 0
+    if port == 0x7F:
+        return 0x40
+    if port in (0xDC, 0xC0):
+        return 0xFF
+    if port in (0xDD, 0xC1):
+        # The supplied ROM is Japanese; bit behavior follows Dega's MX_JAPAN.
+        return 0xFF
+    if port == 0xF2:
+        return 0xFF
+    return 0xFF
 
 
 def output_port(port, value):
-    # VDP/PSG writes are intentionally ignored in this diagnostic runner.
-    return None
+    port &= 0xFF
+    value &= 0xFF
+    if port == 0xBE:
+        if vdp["mode"] == 3:
+            cram[vdp["addr"] & 0x3F] = value
+        else:
+            vram[vdp["addr"] & 0x3FFF] = value
+        vdp["addr"] = (vdp["addr"] + 1) & 0x3FFF
+        vdp["wait"] = 0
+    elif port == 0xBF:
+        if not vdp["wait"]:
+            vdp["low"] = value
+            vdp["wait"] = 1
+        else:
+            command = (value << 8) | vdp["low"]
+            vdp["addr"] = command & 0x3FFF
+            vdp["mode"] = (command >> 14) & 3
+            if (command & 0xF000) == 0x8000:
+                index = (command >> 8) & 0x3F
+                if index < 0x10:
+                    vdp["regs"][index] = command & 0xFF
+            vdp["wait"] = 0
+            vdp["stat"] &= 0x3F
+    # PSG, stereo and FM ports have no bearing on RAM capture.
 
 cpu = z80.Z80Machine()
 cpu.set_read_callback(read_mem)
@@ -133,6 +180,9 @@ report = {
     "pc": f"0x{cpu.pc:04X}",
     "sp": f"0x{cpu.sp:04X}",
     "mapper": {f"0x{k:04X}": v for k, v in mapper.items()},
+    "vdp": {"addr": vdp["addr"], "mode": vdp["mode"], "stat": vdp["stat"],
+            "regs": list(vdp["regs"]), "vram_nonzero": sum(x != 0 for x in vram),
+            "cram_nonzero": sum(x != 0 for x in cram)},
     "interesting_ram": interesting,
     "nonzero_ram": snapshot,
     "read_counts": {f"0x{k:04X}": v for k, v in sorted(reads.items())
