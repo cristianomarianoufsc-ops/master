@@ -246,3 +246,7 @@ A semântica de I/O do Dega, portanto, não é a causa principal do bloqueio da 
 Foi criada `tools/analyze_scene_flag_lifecycle.py`, que aceita uma captura ou trace JSON, normaliza endereços, agrupa escritas de `C008/C203` por PC, valor e bancos ativos, lista os blocos relevantes e mostra janelas locais de contexto. O relatório é observacional: não atribui causalidade a uma escrita e não libera flags sinteticamente.
 
 Aplicada à captura Dega de 900 blocos, a ferramenta confirmou 8 escritas de `C203`: inicialização em `0x00AD`, limpeza em `0x4939`, início em `0x40FA`, limpeza em `0x432F`, segunda inicialização em `0x412D`, e eventos posteriores em `0x4352/0x403F`. Também confirmou a segunda operação em `0x412A/0x412D` no bloco 531 e o novo início em `0x403A/0x403F` no bloco 789, quando o executor permanece em `0x406C`. O relatório condensado está em `build/dega_io_flag_lifecycle.md`.
+
+## Descoberta: segunda operação reinicia em ciclo
+
+A nova ferramenta `tools/analyze_scene_flag_lifecycle.py` foi aplicada à captura compatível com Dega de 900 blocos. Além da segunda operação iniciada em `0x412A/0x412D` no bloco 531, o trace mostra nova tentativa em `0x403A/0x403F` no bloco 789, com `C008=2` e `C203=1`, seguida pelo loop `0x406C`. Isso indica que a segunda operação pode ser rearmada depois de uma passagem incompleta, e não deve ser modelada como uma única espera estática. O relatório agrupado está em `build/dega_io_flag_lifecycle.md`; a causa da ausência de limpeza de `C203` ainda não foi resolvida.
