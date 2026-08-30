@@ -210,6 +210,12 @@ O trace não saturado registrou atividade nos PCs `0x4017`, `0x4065`, `0x406A`, 
 
 A partir desta etapa, não serão feitos novos desbloqueios sintéticos como tentativa de alcançar `0x4A8D`. A investigação deve se concentrar na causa do carregamento pendente: a rotina em `0x40F5–0x40FA` inicia a operação, o loop em `0x406C` aguarda ambos os flags zerarem, e as rotinas que deveriam consumir o estado precisam ser reproduzidas na ordem correta do jogo/emulador.
 
+## Descoberta: 0x8B8B é um limpador incondicional de slots
+
+A janela física de `0x8B80–0x8BCF` foi extraída do banco 2, ativo quando `FFFF=0x82`, e documentada em `build/a0_cleanup_routine.md`. A sequência em `0x8B81` inicializa `HL=DD17h`, zera `A`, executa dez iterações e grava zero em cinco campos por slot, avançando `0x20` bytes por iteração. O laço não testa `C203`, `DD97` nem o bit 7 dos slots; portanto, não há uma condição interna em `0x8B8B–0x8B93` que escolha desmontar a tarefa A0.
+
+A correspondência entre `DD17` e `DDF7` ocorre na oitava iteração, com os campos associados em `DE0F–DE12`, exatamente os endereços observados no trace. A interpretação correta é que o chamador leva a execução ao limpador geral enquanto a operação A0 ainda está pendente. O próximo probe deve capturar o fluxo de entrada e o endereço de retorno imediatamente antes de `0x8B81`, correlacionando `DD03`, `DD97`, `DDB7` e `C203`. Nenhum desbloqueio sintético deve ser usado.
+
 ## Ferramenta específica para o ciclo da tarefa A0
 
 Foi adicionada `tools/analyze_a0_task_lifecycle.py`, que resume eventos de armamento, limpeza e atividade do grupo `DDF7–DE16`, além de `C203`, `DD03` e `DD97`, a partir de uma captura JSON. A ferramenta é somente observacional: não libera esperas, não altera RAM e não interpreta a ausência do breakpoint como sucesso. O capturador e `tools/run_timed_capture.py` também aceitam `--trace-forced-addresses`, permitindo retirar `C008` do conjunto de eventos forçados e evitar que o loop diagnóstico de boot sature um trace focalizado.
