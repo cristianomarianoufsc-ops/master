@@ -314,3 +314,7 @@ A resolução estática do índice `0x10` do comando `0xA0` encontrou ponteiros 
 ## Correção runtime: A0 seleciona AB72 e o grupo DDF7/DD97
 
 A extração de registradores nos eventos do dispatcher corrigiu a cadeia: com `DD03=0xA0`, `0x8536` usa o ponteiro `0xAB72`, trabalha com destino `DDF7` e sinaliza `DD97=4`; depois `0x857B` reduz `DD03` para `0x80`. Assim, o grupo efetivo do comando A0 é `DDF7–DE16`, com estado auxiliar em `DD97`, não `DDD7`. O relatório está em `build/command_a0_runtime_chain.md`, e foi adicionado `tools/extract_trace_pc.py`.
+
+## Descoberta: tarefa A0 é armada e desmontada imediatamente
+
+O trace do grupo correto `DDF7–DE16` mostrou que o comando `0xA0` é realmente armado no bloco 265: `DD97=4`, `DDF7=0xA8` (bit 7 ativo) e estrutura copiada para `DDF7–DE06`. No bloco 267, a rotina `0x8B8B–0x8B93` zera `DDF7` e `DDEF–DDF2`; depois o fluxo fica em `0x406F` lendo `C203=1`. A causa foi estreitada para desmontagem prematura da tarefa A0, não para tabela nula, banco ausente ou falta de IRQ. Relatório: `build/a0_task_lifecycle.md`.
