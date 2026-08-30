@@ -12,6 +12,8 @@ parser.add_argument("--max-steps", type=int, default=650)
 parser.add_argument("--press-start", type=int, default=260)
 parser.add_argument("--press-runs", type=int, default=30)
 parser.add_argument("--masks", default="0xFE,0xFD,0xFB,0xF7,0xEF,0xDF,0xBF,0x7F")
+parser.add_argument("--dega-io-semantics", action="store_true",
+                    help="interpret masks as Dega MastInput values")
 args = parser.parse_args()
 
 masks = [int(value.strip(), 0) & 0xFF for value in args.masks.split(",")]
@@ -27,6 +29,7 @@ for mask in masks:
                str(args.rom), "--max-steps", str(args.max_steps),
                "--ticks-per-run", "100000", "--vdp-wait-reads", "2",
                "--scanline-irq", "--dega-frame-schedule", "--irq-every-runs", "0",
+               *( ["--dega-io-semantics"] if args.dega_io_semantics else [] ),
                "--input-sequence", sequence_arg, "--trace-pc-range", "0x0000-0x4B20",
                "--trace-limit", "150000", "--trace-out", str(trace_path),
                "--out", str(report_path)]

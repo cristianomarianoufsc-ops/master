@@ -274,3 +274,7 @@ O relatório completo está em `build/scene_3500_flag_lifecycle.md`, com o resum
 ## Descoberta: pulsos tardios não são amostrados
 
 A matriz de entradas com pulsos iniciados no bloco 1040 confirmou que o jogo não lê `DC/C0` nessa janela: as leituras permaneceram apenas nos blocos 265 e 527, com `0xFF`. Os casos `0xEF` e `0xDF` continuam no caminho `0x406F`; as demais máscaras retornam ao fluxo `0x3536`. O relatório está em `build/timed_input_matrix_1040.md`. Não se deve atribuir efeito causal aos pulsos tardios; o próximo teste deve alterar apenas a janela real de amostragem ou modelar a atualização de entrada por frame no emulador.
+
+## Descoberta: entrada reconhecida, mas sem transição
+
+A matriz na janela causal (blocos 240–299), agora com `--dega-io-semantics`, confirmou que as máscaras de controle são convertidas e reconhecidas: leituras no bloco 265 variaram entre `0xFE`, `0xFD`, `0xFB`, `0xF7`, `0xEF`, `0xDF` e `0xFF`. As máscaras `0x10` e `0x20` alteraram a cadência para uma IRQ e impediram a segunda leitura observada em 527, mas todos os caminhos terminaram em `0x406C` com `FFFF=0x16`. O relatório está em `build/input_window_240_dega.md`. A causa restante é estado/condição da cena, não ausência de amostragem do controle.
