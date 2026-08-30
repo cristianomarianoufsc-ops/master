@@ -310,3 +310,7 @@ O probe `DDD7–DDF6` confirmou que o comando `0xA0` chega ao grupo correto, mas
 ## Descoberta: tabelas do comando A0 têm ponteiros válidos
 
 A resolução estática do índice `0x10` do comando `0xA0` encontrou ponteiros válidos em `l836D→0xAB5F`, `l833D→0xA2C7` e `l82DD→0xAB72`, todos com cabeçalhos estruturados. A hipótese de entrada nula na ROM foi descartada. O próximo passo é identificar a tabela efetivamente selecionada pelo estado `EX AF,AF'` e verificar em runtime até onde `sub_8536` copia a estrutura para `DDD7`.
+
+## Correção runtime: A0 seleciona AB72 e o grupo DDF7/DD97
+
+A extração de registradores nos eventos do dispatcher corrigiu a cadeia: com `DD03=0xA0`, `0x8536` usa o ponteiro `0xAB72`, trabalha com destino `DDF7` e sinaliza `DD97=4`; depois `0x857B` reduz `DD03` para `0x80`. Assim, o grupo efetivo do comando A0 é `DDF7–DE16`, com estado auxiliar em `DD97`, não `DDD7`. O relatório está em `build/command_a0_runtime_chain.md`, e foi adicionado `tools/extract_trace_pc.py`.
