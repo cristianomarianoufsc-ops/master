@@ -30,6 +30,12 @@ p.add_argument("--input-value", type=lambda x: int(x, 0), default=0xFF,
                help="value returned by SMS controller ports DC/C0")
 p.add_argument("--input-sequence", type=str, default=None,
                help="comma-separated hex/decimal controller values, one per native run")
+p.add_argument("--trace-pc-range", type=str, default="0x3400-0x35A0",
+               help="inclusive PC range to trace, for example 0x3400-0x35A0")
+p.add_argument("--trace-limit", type=int, default=20000,
+               help="maximum number of detailed trace records")
+p.add_argument("--trace-out", type=Path, default=None,
+               help="optional JSON file receiving detailed memory/I/O trace")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
 
@@ -49,6 +55,29 @@ def parse_input_sequence(value):
 input_sequence = parse_input_sequence(a.input_sequence)
 current_input = a.input_value & 0xFF
 input_history = []
+try:
+    trace_start, trace_end = [int(item, 0) for item in a.trace_pc_range.split("-", 1)]
+except ValueError as exc:
+    raise SystemExit(f"invalid --trace-pc-range: {a.trace_pc_range!r}") from exc
+if trace_start > trace_end or not 0 <= trace_start <= 0xFFFF or not 0 <= trace_end <= 0xFFFF:
+    raise SystemExit(f"invalid --trace-pc-range: {a.trace_pc_range!r}")
+trace_records = []
+current_run = 0
+
+
+def trace_event(kind, address=None, value=None, force=False):
+    if len(trace_records) >= a.trace_limit or "cpu" not in globals():
+        return
+    pc = cpu.pc & 0xFFFF
+    if not force and not (trace_start <= pc <= trace_end):
+        return
+    record = {"run": current_run, "pc": f"0x{pc:04X}", "kind": kind,
+              "bank_fffe": mapper[0xFFFE], "bank_ffff": mapper[0xFFFF]}
+    if address is not None:
+        record["address"] = f"0x{address & 0xFFFF:04X}"
+    if value is not None:
+        record["value"] = value & 0xFF
+    trace_records.append(record)
 
 rom = a.rom.read_bytes()
 if len(rom) % 0x4000:
@@ -66,6 +95,7 @@ last_pc = None
 vdp_wait_reads = 0
 scanline = 192 if a.dega_frame_schedule else 0
 hint_counter = 0
+pending_irq = False
 
 
 def ram_index(addr):
@@ -83,6 +113,9 @@ def read_mem(addr):
         if vdp_wait_reads >= a.vdp_wait_reads:
             ram[ram_index(addr)] = 0
     reads[addr] = reads.get(addr, 0) + 1
+    if (0xC020 <= addr <= 0xC030 or 0xC200 <= addr <= 0xC251 or
+            addr in mapper):
+        trace_event("mem_read", addr, None)
     if addr < 0x4000:
         return banks[0][addr]
     if addr < 0x8000:
@@ -100,6 +133,9 @@ def write_mem(addr, value):
     addr &= 0xFFFF
     value &= 0xFF
     writes[addr] = writes.get(addr, 0) + 1
+    if (0xC020 <= addr <= 0xC030 or 0xC200 <= addr <= 0xC251 or
+            addr in mapper):
+        trace_event("mem_write", addr, value)
     if addr in mapper:
         mapper[addr] = value
     elif 0xC000 <= addr <= 0xFFFF:
@@ -123,8 +159,10 @@ def input_port(port):
     if port == 0x7F:
         return 0x40
     if port in (0xDC, 0xC0):
+        trace_event("controller_read", port, current_input, force=True)
         return current_input
     if port in (0xDD, 0xC1):
+        trace_event("region_read", port, 0xFF, force=True)
         # The supplied ROM is Japanese; bit behavior follows Dega's MX_JAPAN.
         return 0xFF
     if port == 0xF2:
@@ -159,6 +197,12 @@ def output_port(port, value):
     # PSG, stereo and FM ports have no bearing on RAM capture.
 
 
+def request_irq():
+    """Latch an SMS interrupt request until the CPU can accept it."""
+    global pending_irq
+    pending_irq = True
+
+
 def inject_im1_irq():
     """Inject a conservative SMS VBlank IRQ at a native run boundary.
 
@@ -167,6 +211,9 @@ def inject_im1_irq():
     clear IFF1/IFF2, and jump to 0038h. This is deliberately reported as a
     diagnostic approximation until a core with an IRQ latch is used.
     """
+    global pending_irq
+    if not pending_irq:
+        return False
     state = cpu.get_state_view()
     if not state[34] or cpu.int_disabled:
         return False
@@ -177,7 +224,9 @@ def inject_im1_irq():
     state[34] = 0
     state[35] = 0
     cpu.pc = 0x0038
+    pending_irq = False
     vdp["stat"] |= 0x80
+    trace_event("irq_injected", force=True)
     return True
 
 
@@ -210,8 +259,8 @@ def schedule_scanline_irq():
             hint_counter = vdp["regs"][10]
 
     if requested:
-        return inject_im1_irq()
-    return False
+        request_irq()
+    return inject_im1_irq()
 
 cpu = z80.Z80Machine()
 cpu.set_read_callback(read_mem)
@@ -229,6 +278,7 @@ result = "breakpoint"
 events = []
 try:
     while steps < a.max_steps:
+        current_run = steps + 1
         if input_sequence:
             sequence_index = min(steps, len(input_sequence) - 1)
             current_input = input_sequence[sequence_index]
@@ -243,8 +293,11 @@ try:
             if schedule_scanline_irq():
                 events[-1]["irq_injected"] = True
         elif a.irq_every_runs and steps % a.irq_every_runs == 0:
+            request_irq()
             if inject_im1_irq():
                 events[-1]["irq_injected"] = True
+        elif pending_irq and inject_im1_irq():
+            events[-1]["irq_injected"] = True
         if cpu.pc == a.breakpoint:
             break
     else:
@@ -273,7 +326,10 @@ report = {
               "history_tail": input_history[-64:]},
     "timing": {"scanline_irq": a.scanline_irq,
                "dega_frame_schedule": a.dega_frame_schedule,
-               "scanline": scanline, "hint_counter": hint_counter},
+               "scanline": scanline, "hint_counter": hint_counter,
+               "pending_irq": pending_irq},
+    "trace": {"pc_range": [f"0x{trace_start:04X}", f"0x{trace_end:04X}"],
+              "limit": a.trace_limit, "records": trace_records},
     "result": result,
     "steps": steps,
     "events": events[-32:],
@@ -293,6 +349,9 @@ report = {
 if error:
     report["error"] = error
 a.out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+if a.trace_out:
+    a.trace_out.write_text(json.dumps({"rom": str(a.rom), "trace": report["trace"]},
+                                      indent=2) + "\n", encoding="utf-8")
 print(json.dumps({k: report[k] for k in
                   ("result", "steps", "pc", "sp", "mapper", "breakpoint")},
                  indent=2))
