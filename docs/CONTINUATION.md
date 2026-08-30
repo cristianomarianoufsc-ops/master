@@ -147,3 +147,11 @@ Foi corrigido o segundo problema: IRQs agora são solicitadas por `request_irq()
 O trace com valores de leitura mostrou que a primeira leitura da porta `DC` ocorre aproximadamente no bloco nativo `265`, dentro da rotina em `0x055F`; a entrada não é amostrada continuamente no ciclo `0x34xx`. Uma sequência que manteve `0xFF` até o bloco 260, aplicou `0xFE` por 30 blocos e depois liberou o controle alterou o fluxo: após duas passagens de VBlank, o executor terminou em `0x491C`, em vez de permanecer em `0x3537`. Isso confirma que a entrada precisa ser temporizada em relação ao avanço do boot, mas ainda não constitui uma transição válida para `0x4A8D`.
 
 O trace foi aprimorado para registrar também o valor lido de cada endereço monitorado, em particular `C021`, e a instrumentação foi mantida como ferramenta diagnóstica. O próximo experimento deve testar cada máscara de botão na janela em torno do bloco 265, mantendo a mesma cadência de frames, e comparar as rotinas alcançadas em `0x491C`, `0x4939`, `0x4A8D` e seus retornos.
+
+## Avanço atual: matriz de botões e espera em 0x406F
+
+Foi criada `tools/run_input_matrix.py` para executar máscaras de controle temporizadas e comparar PC final, bancos ativos, IRQs e leituras da porta `DC`. A matriz manteve `0xFF` até o bloco 260, pressionou cada máscara por 30 blocos e depois liberou.
+
+As máscaras `0xFE`, `0xFD`, `0xFB`, `0xF7`, `0xBF` e `0x7F` convergiram para `0x491C`, com duas IRQs observadas. As máscaras `0xEF` e `0xDF` seguiram um caminho diferente e ficaram em `0x406F/0x4073`, com `FFFE=0x95` e `FFFF=0x16` (valores crus do mapper). Nesse caminho, `C203` foi lido mais de cem mil vezes, indicando uma espera específica de estado de cena.
+
+Foi testado liberar artificialmente a espera de `C008` também em `0x406F`; o fluxo continuou em `0x4073` e não alcançou `0x4A8D`. Por segurança, `0x406F` não faz parte da lista padrão de pontos liberados. A opção `--vdp-wait-pcs` permanece configurável para experimentos explícitos, mas nenhum valor obtido com esse desbloqueio deve ser tratado como snapshot real. O próximo passo é reconstruir a condição de `C203` e a rotina paginada do banco 21 antes de alterar a temporização novamente.

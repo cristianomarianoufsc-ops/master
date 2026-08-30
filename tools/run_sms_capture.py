@@ -20,6 +20,9 @@ p.add_argument("--ticks-per-run", type=int, default=100_000,
                help="CPU ticks budget for each native run() call")
 p.add_argument("--vdp-wait-reads", type=int, default=2,
                help="reads of C008 before the diagnostic VDP wait is released")
+p.add_argument("--vdp-wait-pcs", type=str,
+               default="0x04E7,0x04EA,0x04EB",
+               help="PCs where the bounded diagnostic C008 wait release applies")
 p.add_argument("--irq-every-runs", type=int, default=1,
                help="inject a VBlank-like IM1 IRQ every N native runs; 0 disables")
 p.add_argument("--scanline-irq", action="store_true",
@@ -53,6 +56,11 @@ def parse_input_sequence(value):
 
 
 input_sequence = parse_input_sequence(a.input_sequence)
+try:
+    vdp_wait_pcs = {int(item.strip(), 0) for item in a.vdp_wait_pcs.split(",")
+                    if item.strip()}
+except ValueError as exc:
+    raise SystemExit(f"invalid --vdp-wait-pcs: {a.vdp_wait_pcs!r}") from exc
 current_input = a.input_value & 0xFF
 input_history = []
 try:
@@ -108,7 +116,7 @@ def read_mem(addr):
     # The real SMS clears C008 from a VDP/interrupt path during the call at
     # 04E4. With no VDP timing model, release only this known polling loop
     # after a bounded number of reads; all other RAM remains untouched.
-    if addr == 0xC008 and 'cpu' in globals() and cpu.pc in (0x04E7, 0x04EA, 0x04EB):
+    if addr == 0xC008 and 'cpu' in globals() and cpu.pc in vdp_wait_pcs:
         vdp_wait_reads += 1
         if vdp_wait_reads >= a.vdp_wait_reads:
             ram[ram_index(addr)] = 0
@@ -325,7 +333,8 @@ report = {
     "input": {"default": a.input_value & 0xFF,
               "sequence": input_sequence,
               "history_tail": input_history[-64:]},
-    "timing": {"scanline_irq": a.scanline_irq,
+    "timing": {"vdp_wait_pcs": [f"0x{x:04X}" for x in sorted(vdp_wait_pcs)],
+               "scanline_irq": a.scanline_irq,
                "dega_frame_schedule": a.dega_frame_schedule,
                "scanline": scanline, "hint_counter": hint_counter,
                "pending_irq": pending_irq},
