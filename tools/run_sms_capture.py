@@ -168,6 +168,7 @@ def write_mem(addr, value):
 
 
 def input_port(port):
+    global pending_irq
     port &= 0xFF
     if port == 0xBE:
         value = vram[vdp["addr"] & 0x3FFF]
@@ -178,6 +179,8 @@ def input_port(port):
         value = vdp["stat"] | 0x20
         vdp["stat"] &= 0x3F
         vdp["wait"] = 0
+        # Dega clears the Z80 interrupt latch when VDP status is read.
+        pending_irq = False
         return value
     if port == 0x7E:
         return 0
@@ -196,6 +199,7 @@ def input_port(port):
 
 
 def output_port(port, value):
+    global pending_irq
     port &= 0xFF
     value &= 0xFF
     if port == 0xBE:
@@ -219,6 +223,8 @@ def output_port(port, value):
                     vdp["regs"][index] = command & 0xFF
             vdp["wait"] = 0
             vdp["stat"] &= 0x3F
+            # Dega clears the interrupt latch on VDP control writes.
+            pending_irq = False
     # PSG, stereo and FM ports have no bearing on RAM capture.
 
 

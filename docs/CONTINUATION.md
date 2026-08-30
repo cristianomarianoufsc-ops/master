@@ -209,3 +209,11 @@ Após o commit do probe diagnóstico, foi repetido o experimento com os pontos d
 O trace não saturado registrou atividade nos PCs `0x4017`, `0x4065`, `0x406A`, `0x406F`, `0x4073`, `0x43F2`, `0x4496` e `0x4939`, mas a liberação artificial não produziu uma transição estável para o diálogo. Em vez disso, o fluxo voltou a rotinas de inicialização e alternância de banco. Isso reforça que limpar `C008/C203` não é um substituto para a operação de carregamento real; o probe serve somente para localizar dependências posteriores.
 
 A partir desta etapa, não serão feitos novos desbloqueios sintéticos como tentativa de alcançar `0x4A8D`. A investigação deve se concentrar na causa do carregamento pendente: a rotina em `0x40F5–0x40FA` inicia a operação, o loop em `0x406C` aguarda ambos os flags zerarem, e as rotinas que deveriam consumir o estado precisam ser reproduzidas na ordem correta do jogo/emulador.
+
+## Correção incremental: limpeza do latch de IRQ pelo VDP
+
+A comparação com `mast/mem.cpp` do Dega revelou que leituras do status VDP (`BF`) e escritas de controle VDP limpam o latch de interrupção. O capturador foi ajustado para limpar `pending_irq` nesses dois pontos, mantendo a solicitação de IRQ separada da aceitação pelo Z80.
+
+A alteração passou por compilação e captura curta. Na captura real com a janela `0xEF`, o caminho continuou terminando em `0x4073`, sem alcançar `0x4A8D`. O auditor retornou `risk` por `BREAKPOINT_NOT_REACHED` e apontou uma divergência entre duas IRQs solicitadas e uma aceita, além de `C203=1` constante e PC dominante em `0x406F`. Portanto, a correção alinha o modelo a uma semântica documentada do Dega, mas não constitui avanço suficiente para declarar a transição de cena resolvida.
+
+A hipótese atual permanece: o carregamento iniciado em `0x40F5–0x40FA` depende de uma cadeia de estado que não está sendo reproduzida pelo capturador; apenas ajustar o latch VDP não libera corretamente `C203`.
