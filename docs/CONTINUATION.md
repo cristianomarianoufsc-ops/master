@@ -216,6 +216,12 @@ A janela física de `0x8B80–0x8BCF` foi extraída do banco 2, ativo quando `FF
 
 A correspondência entre `DD17` e `DDF7` ocorre na oitava iteração, com os campos associados em `DE0F–DE12`, exatamente os endereços observados no trace. A interpretação correta é que o chamador leva a execução ao limpador geral enquanto a operação A0 ainda está pendente. O próximo probe deve capturar o fluxo de entrada e o endereço de retorno imediatamente antes de `0x8B81`, correlacionando `DD03`, `DD97`, `DDB7` e `C203`. Nenhum desbloqueio sintético deve ser usado.
 
+## Descoberta: matriz de duas janelas não alcança o diálogo
+
+Foi criada `tools/run_two_window_matrix.py` para testar os valores `0x00`, `0x10`, `0x20` e `0x30` nas duas janelas reais de leitura do controle, nos blocos 265 e 527. As 16 combinações foram executadas com semântica de I/O do Dega até o bloco 900. Quinze combinações terminaram em `0x406C` com `FFFF=0x16`; a combinação sem entrada nas duas janelas terminou em `0x3548` com `FFFF=0x84`. Nenhuma alcançou `0x4A8D`.
+
+A segunda leitura de controle, portanto, altera o caminho para a espera de cena, mas não é suficiente para disparar o diálogo. As execuções continuam sendo evidência diagnóstica, não snapshots válidos. O próximo probe deve correlacionar a leitura do bloco 527 com `C202`, `C206`, `DD03`, `DD97` e o pedido de tarefa associado a `C203`.
+
 ## Descoberta: dois chamadores distintos do limpador A0
 
 A instrumentação passou a registrar `SP` e os dois bytes no topo da pilha em eventos de execução. O relatório `build/a0_cleanup_callers.md` confirma que o inicializador em `0x8B62` é alcançado por dois chamadores: o `CALL 0x8B62` em `0x0533`, com retorno `0x0536`, e o `CALL 0x8B62` em `0x4569`, com retorno `0x456C`. O bloco 267 usa o chamador fixo de `0x0533`; o bloco 277 usa o chamador paginado de `0x4569`; o bloco 278 volta ao chamador fixo com `FFFE=0x95`.
