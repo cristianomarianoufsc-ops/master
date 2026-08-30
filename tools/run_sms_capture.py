@@ -49,6 +49,8 @@ p.add_argument("--trace-out", type=Path, default=None,
                help="optional JSON file receiving detailed memory/I/O trace")
 p.add_argument("--trace-forced-addresses", type=str, default="0xC008,0xC203",
                help="comma-separated addresses whose events bypass PC/rate filtering")
+p.add_argument("--trace-exec-range", type=str, default=None,
+               help="inclusive PC range whose opcode fetches are recorded")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
 
@@ -95,6 +97,17 @@ try:
                               a.trace_forced_addresses.split(",") if item.strip()}
 except ValueError as exc:
     raise SystemExit(f"invalid --trace-forced-addresses: {a.trace_forced_addresses!r}") from exc
+trace_exec_start = trace_exec_end = None
+if a.trace_exec_range:
+    try:
+        trace_exec_start, trace_exec_end = [int(item, 0) for item in
+                                            a.trace_exec_range.split("-", 1)]
+    except ValueError as exc:
+        raise SystemExit(f"invalid --trace-exec-range: {a.trace_exec_range!r}") from exc
+    if (trace_exec_start > trace_exec_end or
+            not 0 <= trace_exec_start <= 0xFFFF or
+            not 0 <= trace_exec_end <= 0xFFFF):
+        raise SystemExit(f"invalid --trace-exec-range: {a.trace_exec_range!r}")
 trace_records = []
 trace_event_count = 0
 current_run = 0
@@ -114,6 +127,9 @@ def trace_event(kind, address=None, value=None, force=False):
         return
     record = {"run": current_run, "pc": f"0x{pc:04X}", "kind": kind,
               "bank_fffe": mapper[0xFFFE], "bank_ffff": mapper[0xFFFF],
+              "sp": cpu.sp & 0xFFFF,
+              "stack0": ram[ram_index(cpu.sp)] if 0xC000 <= cpu.sp <= 0xDFFF else None,
+              "stack1": ram[ram_index((cpu.sp + 1) & 0xFFFF)] if 0xC000 <= cpu.sp + 1 <= 0xDFFF else None,
               "a": cpu.a, "b": cpu.b, "c": cpu.c, "d": cpu.d,
               "e": cpu.e, "h": cpu.h, "l": cpu.l}
     if address is not None:
@@ -148,6 +164,9 @@ def ram_index(addr):
 def read_mem(addr):
     global vdp_wait_reads
     addr &= 0xFFFF
+    if (trace_exec_start is not None and 'cpu' in globals() and
+            trace_exec_start <= cpu.pc <= trace_exec_end and addr == cpu.pc):
+        trace_event("exec", addr, force=True)
     # The real SMS clears C008 from a VDP/interrupt path during the call at
     # 04E4. With no VDP timing model, release only this known polling loop
     # after a bounded number of reads; all other RAM remains untouched.
@@ -395,6 +414,8 @@ report = {
     "trace": {"pc_range": [f"0x{trace_start:04X}", f"0x{trace_end:04X}"],
               "memory_range": ([f"0x{trace_memory_start:04X}", f"0x{trace_memory_end:04X}"]
                                 if trace_memory_start is not None else None),
+              "exec_range": ([f"0x{trace_exec_start:04X}", f"0x{trace_exec_end:04X}"]
+                              if trace_exec_start is not None else None),
               "limit": a.trace_limit, "sample_every": a.trace_every, "forced_addresses": [f"0x{x:04X}" for x in sorted(trace_forced_addresses)],
               "events_seen": trace_event_count, "records": trace_records},
     "result": result,

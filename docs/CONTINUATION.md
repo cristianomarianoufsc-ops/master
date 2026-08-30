@@ -216,6 +216,12 @@ A janela física de `0x8B80–0x8BCF` foi extraída do banco 2, ativo quando `FF
 
 A correspondência entre `DD17` e `DDF7` ocorre na oitava iteração, com os campos associados em `DE0F–DE12`, exatamente os endereços observados no trace. A interpretação correta é que o chamador leva a execução ao limpador geral enquanto a operação A0 ainda está pendente. O próximo probe deve capturar o fluxo de entrada e o endereço de retorno imediatamente antes de `0x8B81`, correlacionando `DD03`, `DD97`, `DDB7` e `C203`. Nenhum desbloqueio sintético deve ser usado.
 
+## Descoberta: dois chamadores distintos do limpador A0
+
+A instrumentação passou a registrar `SP` e os dois bytes no topo da pilha em eventos de execução. O relatório `build/a0_cleanup_callers.md` confirma que o inicializador em `0x8B62` é alcançado por dois chamadores: o `CALL 0x8B62` em `0x0533`, com retorno `0x0536`, e o `CALL 0x8B62` em `0x4569`, com retorno `0x456C`. O bloco 267 usa o chamador fixo de `0x0533`; o bloco 277 usa o chamador paginado de `0x4569`; o bloco 278 volta ao chamador fixo com `FFFE=0x95`.
+
+Essa descoberta separa duas causas possíveis para a limpeza de `DDF7`: a inicialização geral de boot e uma reentrada pelo caminho paginado de jogo. O próximo probe deve comparar `C203`, `DD03`, `DD97` e `DDF7–DE16` antes de cada chamador, em vez de atribuir a desmontagem diretamente ao dispatcher A0.
+
 ## Ferramenta específica para o ciclo da tarefa A0
 
 Foi adicionada `tools/analyze_a0_task_lifecycle.py`, que resume eventos de armamento, limpeza e atividade do grupo `DDF7–DE16`, além de `C203`, `DD03` e `DD97`, a partir de uma captura JSON. A ferramenta é somente observacional: não libera esperas, não altera RAM e não interpreta a ausência do breakpoint como sucesso. O capturador e `tools/run_timed_capture.py` também aceitam `--trace-forced-addresses`, permitindo retirar `C008` do conjunto de eventos forçados e evitar que o loop diagnóstico de boot sature um trace focalizado.
