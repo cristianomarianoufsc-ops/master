@@ -1,0 +1,7 @@
+{
+  "vram_size": 16384,
+  "used_tiles": 1,
+  "sheet": "/home/ubuntu/work/kujakuou_direct/build/exact_tile_block_aligned/inspect/vram_tiles.png",
+  "name_table": "/home/ubuntu/work/kujakuou_direct/build/exact_tile_block_aligned/inspect/name_table.png",
+  "report": "/home/ubuntu/work/kujakuou_direct/build/exact_tile_block_aligned/inspect/report.json"
+}

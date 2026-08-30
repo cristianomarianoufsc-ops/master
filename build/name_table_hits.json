@@ -1,0 +1,13 @@
+{
+  "patterns": {
+    "hud_top_left_bytes": 0,
+    "hud_bottom_left_bytes": 0,
+    "hud_top_right_bytes": 0,
+    "hud_bottom_right_bytes": 0,
+    "hud_top_left_words": 0,
+    "hud_bottom_left_words": 0,
+    "hud_top_right_words": 0,
+    "hud_bottom_right_words": 0
+  },
+  "clusters": []
+}

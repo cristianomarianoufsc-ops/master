@@ -1,0 +1,40 @@
+# Proprietary ROMs and complete images
+*.sms
+*.gg
+*.rom
+*.bin
+!tools/**/*.bin
+!build/fixtures/**/*.bin
+
+# Emulator state, screenshots and local runtime files
+*.mc0
+*.mc1
+*.mca
+*.sav
+*.srm
+*.state
+*.st
+
+# Local input/output directories
+input/
+rom/
+original/
+work/
+
+# Patch outputs are allowed only when they are distributable patches
+*.ips
+*.bps
+!patch/*.ips
+!patch/*.bps
+
+# Python and OS files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+Thumbs.db
+
+# Large or transient generated data
+*.log
+*.tmp
+*.trace

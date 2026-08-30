@@ -1,0 +1,9 @@
+bank=22
+cpu=0x6E33
+slot=0x4000
+file_offset=0x05AE33
+bytes=1a010006eea4051000021c010006effb1be8051000feb4c2fdc2c201021a010006eea4051000021c010006effb1be8051000feb5c2fdc3c201021a010006eea4
+
++0x04: word=0xA4EE slot=8000
++0x32: word=0xB5FE slot=8000
++0x3E: word=0xA4EE slot=8000

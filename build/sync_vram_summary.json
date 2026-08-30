@@ -1,0 +1,7 @@
+{
+  "vram_size": 16384,
+  "used_tiles": 5,
+  "sheet": "/home/ubuntu/work/kujakuou_direct/build/sync_vram_analysis/vram_tiles.png",
+  "name_table": "/home/ubuntu/work/kujakuou_direct/build/sync_vram_analysis/name_table.png",
+  "report": "/home/ubuntu/work/kujakuou_direct/build/sync_vram_analysis/report.json"
+}

@@ -1,0 +1,9 @@
+{
+  "rom": "work/kujaku_ou_jp_original.sms",
+  "size": 524288,
+  "banks": 32,
+  "padding_runs": 42,
+  "pointer_tables": 5652,
+  "tile_regions": 459,
+  "report": "/home/ubuntu/work/kujakuou_direct/build/analysis_refs/report.json"
+}

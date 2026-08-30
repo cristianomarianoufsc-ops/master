@@ -1,0 +1,66 @@
+{
+  "state": "/home/ubuntu/.mednafen/mcs/Kujaku Ou (Japan).d8788e907f76419d55bcc447e76de6ad.mc0",
+  "state_size": 243068,
+  "state_sha256": "37caeb00bede828a51537a10ba0f85dfedfcc1fc0e2c76141ab6472366b3eb8c",
+  "screenshot": "/home/ubuntu/work/kujakuou/first_text.png",
+  "screenshot_masks": 129,
+  "step": 32,
+  "candidates": [
+    {
+      "state_offset": 5216,
+      "score": 292,
+      "exact_masks": 2,
+      "unique_tile_masks": 11,
+      "path": "/home/ubuntu/work/kujakuou_direct/build/vram_candidates/candidate_00_001460.vram"
+    },
+    {
+      "state_offset": 5248,
+      "score": 292,
+      "exact_masks": 2,
+      "unique_tile_masks": 11,
+      "path": "/home/ubuntu/work/kujakuou_direct/build/vram_candidates/candidate_01_001480.vram"
+    },
+    {
+      "state_offset": 5280,
+      "score": 292,
+      "exact_masks": 2,
+      "unique_tile_masks": 11,
+      "path": "/home/ubuntu/work/kujakuou_direct/build/vram_candidates/candidate_02_0014a0.vram"
+    },
+    {
+      "state_offset": 5312,
+      "score": 292,
+      "exact_masks": 2,
+      "unique_tile_masks": 11,
+      "path": "/home/ubuntu/work/kujakuou_direct/build/vram_candidates/candidate_03_0014c0.vram"
+    },
+    {
+      "state_offset": 5344,
+      "score": 292,
+      "exact_masks": 2,
+      "unique_tile_masks": 11,
+      "path": "/home/ubuntu/work/kujakuou_direct/build/vram_candidates/candidate_04_0014e0.vram"
+    },
+    {
+      "state_offset": 5376,
+      "score": 292,
+      "exact_masks": 2,
+      "unique_tile_masks": 11,
+      "path": "/home/ubuntu/work/kujakuou_direct/build/vram_candidates/candidate_05_001500.vram"
+    },
+    {
+      "state_offset": 5408,
+      "score": 292,
+      "exact_masks": 2,
+      "unique_tile_masks": 11,
+      "path": "/home/ubuntu/work/kujakuou_direct/build/vram_candidates/candidate_06_001520.vram"
+    },
+    {
+      "state_offset": 5440,
+      "score": 292,
+      "exact_masks": 2,
+      "unique_tile_masks": 11,
+      "path": "/home/ubuntu/work/kujakuou_direct/build/vram_candidates/candidate_07_001540.vram"
+    }
+  ]
+}

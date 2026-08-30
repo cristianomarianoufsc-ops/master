@@ -1,0 +1,32 @@
+# Resolved paged references
+
+line=4122 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;9c4f
+line=4141 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;9c78
+line=4143 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;9c7c
+line=4181 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;9ccd
+line=4196 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;9ce4
+line=4228 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;9d22
+line=4247 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;9d4c
+line=4249 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;9d50
+line=4281 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;9d94
+line=4283 bank_before=22 cpu=0x5C21 instruction=call 05c21h		;9d9a
+line=4284 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;9d9d
+line=4365 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;9e3e
+line=4367 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;9e42
+line=4437 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;9ecf
+line=4439 bank_before=22 cpu=0x5C21 instruction=call 05c21h		;9ed3
+line=4440 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;9ed6
+line=4748 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;a070
+line=4766 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;a094
+line=4768 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;a098
+line=4809 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;a0f3
+line=4817 bank_before=22 cpu=0x5C21 instruction=call 05c21h		;a102
+line=4818 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;a105
+line=4920 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;a1d5
+line=4928 bank_before=22 cpu=0x5C21 instruction=call 05c21h		;a1e4
+line=4929 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;a1e7
+line=5061 bank_before=22 cpu=0x5C16 instruction=call 05c16h		;a2d2
+line=5063 bank_before=22 cpu=0x5C21 instruction=call 05c21h		;a2d8
+line=5064 bank_before=22 cpu=0x5C02 instruction=call 05c02h		;a2db
+line=5134 bank_before=132 cpu=0x5C16 instruction=call 05c16h		;a34e
+line=5183 bank_before=132 cpu=0x5C16 instruction=call 05c16h		;a39c

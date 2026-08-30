@@ -1,0 +1,7 @@
+{
+  "vram_size": 16384,
+  "used_tiles": 270,
+  "sheet": "/home/ubuntu/work/kujakuou_direct/build/vram_smoke/vram_tiles.png",
+  "name_table": "/home/ubuntu/work/kujakuou_direct/build/vram_smoke/name_table.png",
+  "report": "/home/ubuntu/work/kujakuou_direct/build/vram_smoke/report.json"
+}
