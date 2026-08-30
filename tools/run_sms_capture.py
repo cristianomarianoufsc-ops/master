@@ -80,7 +80,9 @@ def trace_event(kind, address=None, value=None, force=False):
     if not force and not (trace_start <= pc <= trace_end):
         return
     record = {"run": current_run, "pc": f"0x{pc:04X}", "kind": kind,
-              "bank_fffe": mapper[0xFFFE], "bank_ffff": mapper[0xFFFF]}
+              "bank_fffe": mapper[0xFFFE], "bank_ffff": mapper[0xFFFF],
+              "a": cpu.a, "b": cpu.b, "c": cpu.c, "d": cpu.d,
+              "e": cpu.e, "h": cpu.h, "l": cpu.l}
     if address is not None:
         record["address"] = f"0x{address & 0xFFFF:04X}"
     if value is not None:
@@ -121,8 +123,8 @@ def read_mem(addr):
         if vdp_wait_reads >= a.vdp_wait_reads:
             ram[ram_index(addr)] = 0
     reads[addr] = reads.get(addr, 0) + 1
-    if (0xC020 <= addr <= 0xC030 or 0xC200 <= addr <= 0xC251 or
-            addr in mapper):
+    if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
+            0xC200 <= addr <= 0xC251 or addr in mapper):
         read_value = mapper[addr] if addr in mapper else ram[ram_index(addr)]
         trace_event("mem_read", addr, read_value)
     if addr < 0x4000:
@@ -142,8 +144,8 @@ def write_mem(addr, value):
     addr &= 0xFFFF
     value &= 0xFF
     writes[addr] = writes.get(addr, 0) + 1
-    if (0xC020 <= addr <= 0xC030 or 0xC200 <= addr <= 0xC251 or
-            addr in mapper):
+    if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
+            0xC200 <= addr <= 0xC251 or addr in mapper):
         trace_event("mem_write", addr, value)
     if addr in mapper:
         mapper[addr] = value

@@ -155,3 +155,9 @@ Foi criada `tools/run_input_matrix.py` para executar máscaras de controle tempo
 As máscaras `0xFE`, `0xFD`, `0xFB`, `0xF7`, `0xBF` e `0x7F` convergiram para `0x491C`, com duas IRQs observadas. As máscaras `0xEF` e `0xDF` seguiram um caminho diferente e ficaram em `0x406F/0x4073`, com `FFFE=0x95` e `FFFF=0x16` (valores crus do mapper). Nesse caminho, `C203` foi lido mais de cem mil vezes, indicando uma espera específica de estado de cena.
 
 Foi testado liberar artificialmente a espera de `C008` também em `0x406F`; o fluxo continuou em `0x4073` e não alcançou `0x4A8D`. Por segurança, `0x406F` não faz parte da lista padrão de pontos liberados. A opção `--vdp-wait-pcs` permanece configurável para experimentos explícitos, mas nenhum valor obtido com esse desbloqueio deve ser tratado como snapshot real. O próximo passo é reconstruir a condição de `C203` e a rotina paginada do banco 21 antes de alterar a temporização novamente.
+
+## Avanço atual: condição real do loop 0x406F
+
+O trace foi ampliado para registrar `C008`, além dos registradores `A–L` do Z80. No caminho acionado por um pulso de `0xEF` no bloco 265, a execução entra no banco físico 21 com `FFFE=0x95` e `FFFF=0x16`, e permanece no ciclo `0x406F/0x4073`. Durante aproximadamente 25 mil leituras, `C008` permaneceu em `0x02` e `C203` em `0x01`; nos eventos observados, `B=0`, `C=1` e `A` alternou entre os valores usados pelo teste da condição.
+
+Essa evidência confirma que a espera de `0x406F` não pode ser liberada simplesmente zerando `C008`: o estado de cena em `C203` também participa da condição, e a combinação atual representa uma operação de carregamento ainda pendente. A ferramenta não foi alterada para forçar essa transição. O próximo passo é mapear os escritores de `C008` e `C203` e comparar o caminho com uma execução real do Dega, antes de introduzir qualquer valor sintético.
