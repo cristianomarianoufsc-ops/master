@@ -115,7 +115,8 @@ def read_mem(addr):
     reads[addr] = reads.get(addr, 0) + 1
     if (0xC020 <= addr <= 0xC030 or 0xC200 <= addr <= 0xC251 or
             addr in mapper):
-        trace_event("mem_read", addr, None)
+        read_value = mapper[addr] if addr in mapper else ram[ram_index(addr)]
+        trace_event("mem_read", addr, read_value)
     if addr < 0x4000:
         return banks[0][addr]
     if addr < 0x8000:
