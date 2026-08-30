@@ -282,3 +282,7 @@ A matriz na janela causal (blocos 240–299), agora com `--dega-io-semantics`, c
 ## Descoberta: combinações curtas também não mudam o caminho
 
 Foram testadas combinações internas `0x03`, `0x0C`, `0x10`, `0x20`, `0x30` e `0x3F` por 1, 5 e 15 blocos na janela causal de entrada. Todos os casos terminaram em `0x4073`, sem alcançar `0x4A8D`; algumas combinações alteraram a segunda leitura no bloco 527 e a quantidade de IRQs, mas não a transição de cena. O relatório está em `build/input_short_combinations.md`. Foi adicionado `tools/summarize_input_matrix.py` para resumir matrizes sem depender de saída bruta.
+
+## Descoberta: C202 participa do ponteiro C206
+
+O probe determinístico de `C200–C20F` confirmou que a segunda operação em `0x412A/0x412D` calcula um valor em `C206` no bloco 531, após mudar `FFFF` para `0x16`: `C206=0x0080`, com a instrução em `0x4146`. O ciclo seguinte ainda conclui em `0x432F` e é rearmado em `0x406A`, mas retorna ao loop `0x4070`. Isso indica que o índice/estado em `C202` e o ponteiro em `C206` são candidatos mais promissores que os flags isolados para explicar a repetição da cena. Foram adicionados `tools/run_timed_capture.py` e `tools/summarize_memory_writes.py`; o relatório está em `build/c200_state_probe.md`.
