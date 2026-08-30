@@ -348,3 +348,9 @@ A extração de registradores nos eventos do dispatcher corrigiu a cadeia: com `
 ## Descoberta: tarefa A0 é armada e desmontada imediatamente
 
 O trace do grupo correto `DDF7–DE16` mostrou que o comando `0xA0` é realmente armado no bloco 265: `DD97=4`, `DDF7=0xA8` (bit 7 ativo) e estrutura copiada para `DDF7–DE06`. No bloco 267, a rotina `0x8B8B–0x8B93` zera `DDF7` e `DDEF–DDF2`; depois o fluxo fica em `0x406F` lendo `C203=1`. A causa foi estreitada para desmontagem prematura da tarefa A0, não para tabela nula, banco ausente ou falta de IRQ. Relatório: `build/a0_task_lifecycle.md`.
+
+## Reprodução local: ambiente preparado e caminho não conclusivo
+
+A ROM fornecida foi instalada localmente como `input/KujakuOu_Japan.sms` e o código-fonte do Dega foi extraído somente para `/home/ubuntu/reference/dega-1.12/`; ambos permanecem fora do Git. Todos os scripts passaram por `python3 -m py_compile tools/*.py`. A captura com semântica de I/O do Dega, agendamento de frame, IRQ por scanline, pulso de controle na janela causal e trace amostrado terminou no PC `0x4070` após 1.100 blocos, sem alcançar `0x4A8D`.
+
+O auditor retornou `status=risk`, com `BREAKPOINT_NOT_REACHED`, entrada variável e loop dominante em `0x04E4`. O analisador A0 encontrou cinco escritas em `DD97` (valores `0` e `4`), mas nenhuma escrita em `DDF7–DE16` nesta configuração; isso não substitui nem contradiz a captura de 3.500 blocos documentada anteriormente, pois os caminhos e a duração não são equivalentes. O relatório completo está em `build/local_reproduction_2026-08-30.md`. A próxima execução deve focalizar a janela que armou A0 e registrar também `DDB7` e o retorno imediatamente anterior a `0x8B81`, sem desbloqueios sintéticos.
