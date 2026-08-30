@@ -160,7 +160,8 @@ def write_mem(addr, value):
     writes[addr] = writes.get(addr, 0) + 1
     if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
             0xC200 <= addr <= 0xC251 or addr in mapper):
-        trace_event("mem_write", addr, value)
+        trace_event("mem_write", addr, value,
+                    force=addr in (0xC008, 0xC203))
     if addr in mapper:
         mapper[addr] = value
     elif 0xC000 <= addr <= 0xFFFF:

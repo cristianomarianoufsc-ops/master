@@ -217,3 +217,9 @@ A comparação com `mast/mem.cpp` do Dega revelou que leituras do status VDP (`B
 A alteração passou por compilação e captura curta. Na captura real com a janela `0xEF`, o caminho continuou terminando em `0x4073`, sem alcançar `0x4A8D`. O auditor retornou `risk` por `BREAKPOINT_NOT_REACHED` e apontou uma divergência entre duas IRQs solicitadas e uma aceita, além de `C203=1` constante e PC dominante em `0x406F`. Portanto, a correção alinha o modelo a uma semântica documentada do Dega, mas não constitui avanço suficiente para declarar a transição de cena resolvida.
 
 A hipótese atual permanece: o carregamento iniciado em `0x40F5–0x40FA` depende de uma cadeia de estado que não está sendo reproduzida pelo capturador; apenas ajustar o latch VDP não libera corretamente `C203`.
+
+## Instrumentação: escritores dinâmicos de flags
+
+O capturador passou a registrar escritas em `C008` e `C203` independentemente da faixa de PCs configurada para o trace. Isso evita perder produtores que executam em handlers de IRQ, no boot ou em bancos diferentes da rotina sob investigação. A opção não altera a execução; apenas garante que os eventos de escrita dos dois flags sejam preservados no relatório.
+
+A validação com captura curta passou e o auditor retornou `risk` somente por breakpoint não alcançado, IRQ solicitada sem aceitação, ausência de leitura de controle na faixa escolhida e loop dominante em `0x04E4`. A nova instrumentação foi confirmada pelo registro das escritas em `C008` durante o boot, mesmo com trace restrito a outra faixa de PCs. Ela será usada no próximo experimento de correlação entre escritores e o loop de cena.
