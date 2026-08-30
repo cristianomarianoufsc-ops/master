@@ -51,6 +51,8 @@ p.add_argument("--trace-forced-addresses", type=str, default="0xC008,0xC203",
                help="comma-separated addresses whose events bypass PC/rate filtering")
 p.add_argument("--trace-exec-range", type=str, default=None,
                help="inclusive PC range whose opcode fetches are recorded")
+p.add_argument("--trace-call-targets", type=str, default="0x8B62",
+               help="comma-separated call-target PCs whose entry records include return address")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
 
@@ -98,6 +100,11 @@ try:
 except ValueError as exc:
     raise SystemExit(f"invalid --trace-forced-addresses: {a.trace_forced_addresses!r}") from exc
 trace_exec_start = trace_exec_end = None
+try:
+    trace_call_targets = {int(item.strip(), 0) for item in a.trace_call_targets.split(",")
+                          if item.strip()}
+except ValueError as exc:
+    raise SystemExit(f"invalid --trace-call-targets: {a.trace_call_targets!r}") from exc
 if a.trace_exec_range:
     try:
         trace_exec_start, trace_exec_end = [int(item, 0) for item in
@@ -136,6 +143,10 @@ def trace_event(kind, address=None, value=None, force=False):
         record["address"] = f"0x{address & 0xFFFF:04X}"
     if value is not None:
         record["value"] = value & 0xFF
+    if kind == "call_target" and 0xC000 <= cpu.sp <= 0xDFFF:
+        low = ram[ram_index(cpu.sp)]
+        high = ram[ram_index((cpu.sp + 1) & 0xFFFF)]
+        record["return_address"] = f"0x{((high << 8) | low):04X}"
     trace_records.append(record)
 
 rom = a.rom.read_bytes()
@@ -164,6 +175,8 @@ def ram_index(addr):
 def read_mem(addr):
     global vdp_wait_reads
     addr &= 0xFFFF
+    if ('cpu' in globals() and addr == cpu.pc and cpu.pc in trace_call_targets):
+        trace_event("call_target", addr, force=True)
     if (trace_exec_start is not None and 'cpu' in globals() and
             trace_exec_start <= cpu.pc <= trace_exec_end and addr == cpu.pc):
         trace_event("exec", addr, force=True)
@@ -417,7 +430,8 @@ report = {
               "exec_range": ([f"0x{trace_exec_start:04X}", f"0x{trace_exec_end:04X}"]
                               if trace_exec_start is not None else None),
               "limit": a.trace_limit, "sample_every": a.trace_every, "forced_addresses": [f"0x{x:04X}" for x in sorted(trace_forced_addresses)],
-              "events_seen": trace_event_count, "records": trace_records},
+              "events_seen": trace_event_count, "records": trace_records,
+              "call_targets": [f"0x{x:04X}" for x in sorted(trace_call_targets)]},
     "result": result,
     "steps": steps,
     "events": events[-32:],

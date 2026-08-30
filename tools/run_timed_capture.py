@@ -20,6 +20,7 @@ p.add_argument("--trace-every", type=int, default=32)
 p.add_argument("--trace-limit", type=int, default=150000)
 p.add_argument("--trace-forced-addresses", default="0xC008,0xC203")
 p.add_argument("--trace-exec-range", default=None)
+p.add_argument("--trace-call-targets", default="0x8B62")
 p.add_argument("--dega-io-semantics", action="store_true")
 a = p.parse_args()
 if a.press_start < 0 or a.press_runs < 1:
@@ -35,6 +36,7 @@ command = [sys.executable, str(Path(__file__).with_name("run_sms_capture.py")),
            "--trace-pc-range", a.trace_pc_range, "--trace-limit", str(a.trace_limit),
            "--trace-every", str(a.trace_every), "--trace-out", str(a.trace_out),
            "--trace-forced-addresses", a.trace_forced_addresses,
+           "--trace-call-targets", a.trace_call_targets,
            "--out", str(a.out)]
 if a.trace_exec_range:
     command += ["--trace-exec-range", a.trace_exec_range]

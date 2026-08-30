@@ -376,3 +376,11 @@ Foram executadas duas capturas independentes com a mesma entrada e temporizaçã
 As duas capturas registraram o mesmo caminho de interesse: `0x4496` no bloco 267 com `SP=0xDFEE` e topo `0xEB/0x00`, seguido de limpeza em `DD03`, `DD97`, `DDB7`, `DDF7` e `DE0F–DE12`; o limpador `0x8B8B/0x8B93` foi observado com `SP=0xDFD4` e topo `0x00/0x00`. A restrição da faixa de PCs observados não separa os chamadores, pois não altera a execução e ambas as capturas convergem para o mesmo estado.
 
 O relatório está em `build/a0_two_callers_probe_2026-08-30.md`. O próximo passo deve registrar explicitamente o endereço de retorno na entrada de `0x8B62`, usando um marcador de execução ou instrumentação específica das instruções `CALL` em `0x0533` e `0x4569`; não devem ser feitas novas inferências a partir de faixas de trace isoladas nem alterações na ROM.
+
+## Instrumentação concluída: retornos reais de 0x8B62
+
+O capturador recebeu `--trace-call-targets`, que registra a entrada em PCs de chamada selecionados e reconstrói o endereço de retorno diretamente dos dois bytes no topo da pilha. A captura focalizada em `0x8B60–0x8B90` observou dez entradas em `0x8B62` e separou os dois contextos em runtime: retorno `0x0536`, correspondente ao `CALL 0x8B62` em `0x0533`, nos blocos 41, 46, 265 e 278; e retorno `0x456C`, correspondente ao `CALL 0x8B62` em `0x4569`, no bloco 277. O banco `FFFF` era `0x82`; `FFFE` foi `0x01` ou `0x95` conforme o contexto.
+
+A entrada em `0x8B81` também foi registrada, mas com topo de pilha `0x00/0x00`, confirmando que o ponto pertence ao fluxo interno de `0x8B62` e não deve ser usado para reconstruir o retorno. O relatório está em `build/a0_call_target_probe_2026-08-30.md`. A execução terminou em `0x4073` sem alcançar `0x4A8D`, portanto continua sendo evidência diagnóstica e não snapshot válido de `C280`.
+
+A ambiguidade entre o chamador fixo e o paginado foi eliminada. O próximo probe deve comparar o estado `DD03`, `DD97`, `DDB7`, `DDF7–DE12`, `C203` e os bancos imediatamente antes das entradas com retorno `0x0536` e `0x456C`, priorizando a reentrada paginada do bloco 277.
