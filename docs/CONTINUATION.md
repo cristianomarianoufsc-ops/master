@@ -278,3 +278,7 @@ A matriz de entradas com pulsos iniciados no bloco 1040 confirmou que o jogo nã
 ## Descoberta: entrada reconhecida, mas sem transição
 
 A matriz na janela causal (blocos 240–299), agora com `--dega-io-semantics`, confirmou que as máscaras de controle são convertidas e reconhecidas: leituras no bloco 265 variaram entre `0xFE`, `0xFD`, `0xFB`, `0xF7`, `0xEF`, `0xDF` e `0xFF`. As máscaras `0x10` e `0x20` alteraram a cadência para uma IRQ e impediram a segunda leitura observada em 527, mas todos os caminhos terminaram em `0x406C` com `FFFF=0x16`. O relatório está em `build/input_window_240_dega.md`. A causa restante é estado/condição da cena, não ausência de amostragem do controle.
+
+## Descoberta: combinações curtas também não mudam o caminho
+
+Foram testadas combinações internas `0x03`, `0x0C`, `0x10`, `0x20`, `0x30` e `0x3F` por 1, 5 e 15 blocos na janela causal de entrada. Todos os casos terminaram em `0x4073`, sem alcançar `0x4A8D`; algumas combinações alteraram a segunda leitura no bloco 527 e a quantidade de IRQs, mas não a transição de cena. O relatório está em `build/input_short_combinations.md`. Foi adicionado `tools/summarize_input_matrix.py` para resumir matrizes sem depender de saída bruta.
