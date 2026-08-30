@@ -23,6 +23,8 @@ p.add_argument("--vdp-wait-reads", type=int, default=2,
 p.add_argument("--vdp-wait-pcs", type=str,
                default="0x04E7,0x04EA,0x04EB",
                help="PCs where the bounded diagnostic C008 wait release applies")
+p.add_argument("--diagnostic-release-scene-wait", action="store_true",
+               help="diagnostic only: also clear C203 at configured wait PCs")
 p.add_argument("--irq-every-runs", type=int, default=1,
                help="inject a VBlank-like IM1 IRQ every N native runs; 0 disables")
 p.add_argument("--scanline-irq", action="store_true",
@@ -131,6 +133,9 @@ def read_mem(addr):
         vdp_wait_reads += 1
         if vdp_wait_reads >= a.vdp_wait_reads:
             ram[ram_index(addr)] = 0
+    if (a.diagnostic_release_scene_wait and addr == 0xC203 and
+            'cpu' in globals() and cpu.pc in vdp_wait_pcs):
+        ram[ram_index(addr)] = 0
     reads[addr] = reads.get(addr, 0) + 1
     if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
             0xC200 <= addr <= 0xC251 or addr in mapper):

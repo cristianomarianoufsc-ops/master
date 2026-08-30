@@ -193,3 +193,11 @@ Com a ROM real, a matriz temporizada manteve `0xFF` até o bloco 260, pressionou
 A leitura da porta de controle ocorreu no bloco 265, confirmando a janela temporal. Cada relatório principal foi submetido ao auditor e todos retornaram `risk` por não alcançarem `0x4A8D`; portanto, nenhum caminho da matriz foi aceito como evidência de diálogo. No caminho `0xEF/0xDF`, o trace estreito e amostrado confirmou repetição da espera em torno de `0x406F/0x4073`, com `C008=0x02` e `C203=0x01`, sem saturação após a introdução de `--trace-every`.
 
 A filtragem correta dos relatórios também foi registrada operacionalmente: arquivos `*-trace.json` são artefatos auxiliares e não devem ser passados como relatório principal ao auditor. O próximo passo é instrumentar a correlação entre os escritores estáticos de `C008/C203` e os eventos dinâmicos, além de localizar a rotina paginada que deveria consumir ou alterar o estado de cena após `0x4073`.
+
+## Probe diagnóstico do loop de cena
+
+Foi adicionada a opção explicitamente experimental `--diagnostic-release-scene-wait` ao capturador. Quando combinada com `--vdp-wait-pcs 0x406F,0x4073`, ela limpa `C203` nos pontos de espera para revelar o caminho posterior, sem alterar o comportamento padrão e sem permitir que o resultado seja interpretado como snapshot real.
+
+O probe com a janela `0xEF` não alcançou `0x4A8D`; após o desbloqueio artificial, a execução retornou a `0x04E7` e terminou com `BREAKPOINT_NOT_REACHED`. O auditor classificou o relatório como `risk`. Esse resultado é útil apenas como diagnóstico: liberar `C008/C203` não resolve a causa, mas desloca a execução para outra espera anterior do boot. A opção deve permanecer marcada como experimental e nunca ser usada para validar o estado de `C280`.
+
+A análise estática confirmou que `0x406C` é um loop que só retorna quando `C203` e `C008` estão ambos zerados. No caminho testado, `0x40F5–0x40FA` grava `C008=2`, `C203=1` e `C204=1`; a IRQ em `0x01A1` limpa `C008`, mas não `C203`. A única referência direta encontrada a `HL=C203` está na rotina em torno de `0x433D`, que não foi alcançada pelo probe. O próximo passo é reconstruir a cadeia de carregamento que deveria chamar essa rotina, em vez de liberar flags sinteticamente.
