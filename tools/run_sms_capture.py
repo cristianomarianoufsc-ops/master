@@ -26,8 +26,27 @@ p.add_argument("--scanline-irq", action="store_true",
                help="schedule VBlank/H-interrupt at SMS scanline boundaries")
 p.add_argument("--input-value", type=lambda x: int(x, 0), default=0xFF,
                help="value returned by SMS controller ports DC/C0")
+p.add_argument("--input-sequence", type=str, default=None,
+               help="comma-separated hex/decimal controller values, one per native run")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
+
+def parse_input_sequence(value):
+    if not value:
+        return []
+    try:
+        values = [int(item.strip(), 0) & 0xFF
+                  for item in value.split(",") if item.strip()]
+    except ValueError as exc:
+        raise SystemExit(f"invalid --input-sequence: {value!r}") from exc
+    if not values:
+        raise SystemExit("--input-sequence must contain at least one value")
+    return values
+
+
+input_sequence = parse_input_sequence(a.input_sequence)
+current_input = a.input_value & 0xFF
+input_history = []
 
 rom = a.rom.read_bytes()
 if len(rom) % 0x4000:
@@ -101,7 +120,7 @@ def input_port(port):
     if port == 0x7F:
         return 0x40
     if port in (0xDC, 0xC0):
-        return a.input_value & 0xFF
+        return current_input
     if port in (0xDD, 0xC1):
         # The supplied ROM is Japanese; bit behavior follows Dega's MX_JAPAN.
         return 0xFF
@@ -192,6 +211,10 @@ result = "breakpoint"
 events = []
 try:
     while steps < a.max_steps:
+        if input_sequence:
+            sequence_index = min(steps, len(input_sequence) - 1)
+            current_input = input_sequence[sequence_index]
+        input_history.append({"run": steps + 1, "value": current_input})
         event = cpu.run()
         steps += 1
         # run() may stop at the configured tick budget. Re-arm it so the
@@ -227,6 +250,9 @@ report = {
     "rom_size": len(rom),
     "banks": len(banks),
     "breakpoint": f"0x{a.breakpoint:04X}",
+    "input": {"default": a.input_value & 0xFF,
+              "sequence": input_sequence,
+              "history_tail": input_history[-64:]},
     "result": result,
     "steps": steps,
     "events": events[-32:],

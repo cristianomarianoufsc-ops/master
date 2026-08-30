@@ -115,3 +115,11 @@ A busca por `CALL 0545` não encontrou chamadas diretas porque a rotina é alcan
 ## Entrada de controle configurável
 
 O capturador recebeu `--input-value`, usado nas portas SMS `DC/C0`, para permitir testes reproduzíveis de ações sem alterar o código. A varredura dos valores ativos comuns (`FF`, `FE`, `FD`, `FB`, `F7`, `EF`, `DF`, `BF`, `7F`) produziu o mesmo fluxo: `step_limit` em `0x3546` após 500 execuções nativas, com banco `FFFF=0x84`. Portanto, uma entrada fixa isolada não avança a cena; o loop principal depende também do estado de frame/rotinas de jogo e possivelmente de transições temporais. Não foi obtido snapshot válido.
+
+## Avanço atual: sequência de entradas no capturador
+
+O executor `tools/run_sms_capture.py` agora aceita `--input-sequence`, uma lista separada por vírgulas de valores hexadecimais ou decimais para as portas de controle `DC/C0`. Cada valor é aplicado a um bloco nativo sucessivo; quando a execução ultrapassa o tamanho da lista, o último valor permanece ativo. O relatório JSON inclui a sequência configurada e os últimos valores efetivamente usados por bloco.
+
+Essa mudança permite testar combinações de soltura, pressionamento e manutenção de botões sem alterar a ROM, mas não constitui ainda um modelo completo de eventos do jogo. A sequência atua apenas na fronteira entre chamadas `run()`; o estado de frames, VBlank e o retorno correto das IRQs continua sendo uma limitação documentada.
+
+A alteração foi validada com `py_compile`, `--help` e uma ROM sintética temporária de 32 bancos, confirmando o parsing de `0xFE,0xFD` e seu registro no relatório. A dependência pública `z80==1.0.0` foi instalada no ambiente de execução; a ROM sintética e o relatório de teste permaneceram fora do repositório.
