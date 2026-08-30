@@ -77,3 +77,13 @@ A ROM local foi usada apenas como entrada. A próxima melhoria necessária é co
 ## Avanço atual: executor SMS instrumentado
 
 Foi adicionada `tools/run_sms_capture.py`, um executor diagnóstico que usa uma CPU Z80 real, mapeia os 32 bancos da ROM e controla `FFFE`/`FFFF`, RAM SMS e breakpoints. O teste inicial revelou uma espera em `0x04E7` dependente do VDP; foi incluído um stub limitado e explícito para liberar essa espera. Com ciclos agrupados, o executor agora avança pelo boot até rotinas de inicialização em torno de `0x4912`/`0x3542`, embora ainda não alcance `0x4A8D`. O próximo trabalho é modelar as demais esperas de VDP/interrupção, validando cada uma por contexto, antes de aceitar qualquer snapshot como real.
+
+## Recurso adicional: código-fonte do Dega 1.12
+
+Foi fornecido `Dega-1.12.tar.gz` como recurso local de referência. O código contém um emulador SMS/Mark III real, com núcleo Z80 (`doze/`), memória e VDP (`mast/mem.cpp`), paginação SMS (`mast/map.cpp`) e temporização/interrupções (`mast/frame.cpp`). A implementação confirma que `FFFE`/`FFFD`/`FFFC`/`FFF8` são tratados como registradores de mapper, que a RAM ocupa `C000–DFFF` com espelho em `E000–FFFF`, e que as portas VDP `BE/BF` controlam VRAM, CRAM, status e auto-incremento.
+
+O Dega 1.12 não oferece um debugger moderno pronto para o nosso uso e a compilação original depende de GCC, SDL 1.2 e NASM, ausentes no ambiente. O arquivo foi usado como referência local, não foi adicionado ao repositório. A adaptação em andamento é incorporar ao `tools/run_sms_capture.py` o comportamento necessário de VDP e interrupções para alcançar o breakpoint `0x4A8D` e capturar o estado de RAM.
+
+## Reforço do protocolo de continuidade
+
+A partir desta etapa, toda descoberta ou alteração técnica significativa deve ser registrada imediatamente em `docs/CONTINUATION.md` ou em um relatório específico, validada com testes, revisada com `git diff --check`, commitada com mensagem no formato `area: descrição` e enviada com `git push origin main`. Antes de cada commit deve ser confirmado que ROMs, save states, dumps completos e outros artefatos locais permanecem ignorados e fora do Git. O último estado enviado inclui o executor SMS instrumentado no commit `d4d137f`; esta atualização registra o Dega e o plano de integração.
