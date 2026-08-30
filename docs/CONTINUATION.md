@@ -250,3 +250,7 @@ Aplicada à captura Dega de 900 blocos, a ferramenta confirmou 8 escritas de `C2
 ## Descoberta: segunda operação reinicia em ciclo
 
 A nova ferramenta `tools/analyze_scene_flag_lifecycle.py` foi aplicada à captura compatível com Dega de 900 blocos. Além da segunda operação iniciada em `0x412A/0x412D` no bloco 531, o trace mostra nova tentativa em `0x403A/0x403F` no bloco 789, com `C008=2` e `C203=1`, seguida pelo loop `0x406C`. Isso indica que a segunda operação pode ser rearmada depois de uma passagem incompleta, e não deve ser modelada como uma única espera estática. O relatório agrupado está em `build/dega_io_flag_lifecycle.md`; a causa da ausência de limpeza de `C203` ainda não foi resolvida.
+
+## Descoberta: consumidores de C203 passam pelo dispatcher de IRQ
+
+A desassemblagem do banco físico 21 confirmou que `0x432F` e `0x4352` implementam os consumidores dos bits 0 e 1 de `C203`, respectivamente, usando também os bits correspondentes de `C204`. Eles não possuem chamadas diretas no banco 21. O handler de IRQ em `0x015D–0x01B4` grava `FFFF=0x82`, chama `0x8000` e só então limpa `C008`; a entrada `0x8000` do banco 2 percorre estruturas de tarefas em `DDxx`. A hipótese operacional atual é que a conclusão da segunda operação depende de uma tarefa/estado em `DDxx` que o capturador ainda não reproduz, e não simplesmente de mais IRQs. Essa conclusão foi obtida sem desbloqueio sintético.
