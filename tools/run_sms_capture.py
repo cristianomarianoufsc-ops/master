@@ -20,6 +20,8 @@ p.add_argument("--ticks-per-run", type=int, default=100_000,
                help="CPU ticks budget for each native run() call")
 p.add_argument("--vdp-wait-reads", type=int, default=2,
                help="reads of C008 before the diagnostic VDP wait is released")
+p.add_argument("--irq-every-runs", type=int, default=1,
+               help="inject a VBlank-like IM1 IRQ every N native runs; 0 disables")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
 
@@ -129,6 +131,28 @@ def output_port(port, value):
             vdp["stat"] &= 0x3F
     # PSG, stereo and FM ports have no bearing on RAM capture.
 
+
+def inject_im1_irq():
+    """Inject a conservative SMS VBlank IRQ at a native run boundary.
+
+    The Python Z80 binding exposes read-only IFF properties, but its state
+    view is writable. IM1 entry is therefore reproduced explicitly: push PC,
+    clear IFF1/IFF2, and jump to 0038h. This is deliberately reported as a
+    diagnostic approximation until a core with an IRQ latch is used.
+    """
+    state = cpu.get_state_view()
+    if not state[34] or cpu.int_disabled:
+        return False
+    sp = (cpu.sp - 2) & 0xFFFF
+    write_mem(sp, cpu.pc & 0xFF)
+    write_mem((sp + 1) & 0xFFFF, cpu.pc >> 8)
+    cpu.sp = sp
+    state[34] = 0
+    state[35] = 0
+    cpu.pc = 0x0038
+    vdp["stat"] |= 0x80
+    return True
+
 cpu = z80.Z80Machine()
 cpu.set_read_callback(read_mem)
 cpu.set_write_callback(write_mem)
@@ -151,6 +175,9 @@ try:
         # diagnostic runner can continue through multiple frames/events.
         cpu.ticks_to_stop = a.ticks_per_run
         events.append({"event": event, "pc": f"0x{cpu.pc:04X}"})
+        if a.irq_every_runs and steps % a.irq_every_runs == 0:
+            if inject_im1_irq():
+                events[-1]["irq_injected"] = True
         if cpu.pc == a.breakpoint:
             break
     else:

@@ -93,3 +93,9 @@ A partir desta etapa, toda descoberta ou alteração técnica significativa deve
 O `tools/run_sms_capture.py` agora contém um modelo VDP baseado em `mast/mem.cpp` do Dega: portas `BE/BF`, latch de comando de dois bytes, endereço de 14 bits, modos VRAM/CRAM, auto-incremento, registradores VDP e leitura de status. O relatório passou a incluir endereço, modo, status, registradores e contagem de bytes não nulos em VRAM/CRAM.
 
 A validação com a ROM foi bem-sucedida: o boot executou escritas VDP e produziu VRAM não vazia (`2626` bytes não nulos no teste), confirmando que a camada não está mais sendo simplesmente ignorada. O executor ainda não alcança `0x4A8D`; o ponto atual é uma rotina de espera/coordenação de hardware em torno de `0x04E4`, que depende do atendimento correto de VBlank/H-interrupt. A próxima etapa é modelar o agendamento e a aceitação de IRQ pelo núcleo Z80, sem transformar o stub de VDP em um valor artificial de RAM.
+
+## Etapa experimental: injeção de IRQ IM1
+
+O capturador recebeu `--irq-every-runs` e uma injeção controlada de IRQ modo IM1 entre blocos nativos. Como o binding Python do núcleo Z80 expõe `IFF` apenas para leitura e não possui uma API pública de latch de IRQ, a implementação usa o `state_view()` gravável para empilhar o PC, limpar IFF1/IFF2 e saltar para `0038h`. Isso é útil para diagnóstico, mas ainda não é considerado um modelo final de temporização.
+
+Os testes confirmaram que o vetor de IRQ é alcançado, porém o retorno/coordenação do handler ainda não está correto: com IRQ frequente o PC pode permanecer em `0038h`/rotinas de serviço e `D120–D135` continuam zerados. Não usar os valores obtidos nessa fase como snapshot real. A próxima correção deve reproduzir a cadência por scanline do Dega e preservar o estado de interrupção/retorno com a mesma semântica do hardware, ou então compilar um harness nativo do núcleo Doze sem depender da GUI SDL.
