@@ -36,7 +36,7 @@ Primeiro, completar a emulação de `04CFD/04D16` na ordem de inicialização ob
 
 ## Protocolo de commits
 
-Antes de cada commit, executar `git status`, verificar se não há ROMs ou estados de emulador, revisar o diff e atualizar este manual ou um relatório específico. Usar mensagens no formato `area: descrição`, por exemplo `docs: document dual-slot mapper`, `feat: add exact 04cfd emulator` ou `analysis: classify dialogue pointer tables`. Após o commit, executar `git push origin main` e registrar no relatório o hash enviado.
+Antes de cada commit, executar `git status`, verificar se não há ROMs ou estados de emulador, revisar o diff e atualizar este manual ou um relatório específico. Usar mensagens no formato `area: descrição`, por exemplo `docs: document dual-slot mapper`, `feat: add exact 04cfd emulator` ou `analysis: classify dialogue pointer tables`. Após cada nova etapa técnica descoberta e validada, o agente deve publicar imediatamente o commit usando a autenticação GitHub conectada ao Manus: confirmar primeiro a identidade com `gh api user`, executar `git push origin main`, e verificar que o remoto recebeu o hash com `git status --short --branch` ou `git log --oneline --decorate -n 2`. Não considerar a etapa concluída enquanto o push não tiver sido confirmado. Se o push direto pelo Git falhar por falta de credenciais, não abandonar a publicação: usar o cliente GitHub autenticado pela conexão do Manus e repetir a verificação. Registrar no relatório o hash commitado e o hash efetivamente enviado.
 
 ## Artefatos locais necessários
 
@@ -85,6 +85,8 @@ Foi fornecido `Dega-1.12.tar.gz` como recurso local de referência. O código co
 O Dega 1.12 não oferece um debugger moderno pronto para o nosso uso e a compilação original depende de GCC, SDL 1.2 e NASM, ausentes no ambiente. O arquivo foi usado como referência local, não foi adicionado ao repositório. A adaptação em andamento é incorporar ao `tools/run_sms_capture.py` o comportamento necessário de VDP e interrupções para alcançar o breakpoint `0x4A8D` e capturar o estado de RAM.
 
 ## Reforço do protocolo de continuidade
+
+A conexão GitHub habilitada no Manus deve ser usada para publicar o trabalho do projeto. A autenticação disponível para o cliente GitHub pode não aparecer como credencial configurada no transporte HTTPS do Git; por isso, o agente deve validar a conta com `gh api user` antes de publicar e não deve concluir que o acesso está indisponível apenas porque uma tentativa inicial de `git push` solicitou usuário e senha.
 
 A partir desta etapa, toda descoberta ou alteração técnica significativa deve ser registrada imediatamente em `docs/CONTINUATION.md` ou em um relatório específico, validada com testes, revisada com `git diff --check`, commitada com mensagem no formato `area: descrição` e enviada com `git push origin main`. Antes de cada commit deve ser confirmado que ROMs, save states, dumps completos e outros artefatos locais permanecem ignorados e fora do Git. O último estado enviado inclui o executor SMS instrumentado no commit `d4d137f`; esta atualização registra o Dega e o plano de integração.
 
