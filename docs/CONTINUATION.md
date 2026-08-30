@@ -185,3 +185,11 @@ A captura-base com `--scanline-irq --dega-frame-schedule` e entrada `FF,FE,FF` n
 Para evitar que loops de espera saturem o trace, `tools/run_sms_capture.py` recebeu `--trace-every N`. A opção registra um evento correspondente a cada N eventos de trace, preservando eventos forçados de IRQ, VBlank e controle. Com `--trace-every 32`, a mesma captura não saturou o trace e confirmou, de forma mais limpa, que `C008` e `C203` permanecem constantes sem escritores observados durante a espera. O auditor continua retornando `risk` exclusivamente porque `0x4A8D` não foi alcançado, e `review` pelos flags presos, loop dominante e entrada variável.
 
 Essa etapa não constitui snapshot válido de `C280`. A conclusão operacional é que o problema atual está na transição de cena/estado que antecede `0x406F`, não na falta de capacidade do trace. O próximo diagnóstico deve correlacionar os escritores estáticos de `C008/C203` encontrados na ROM com o trace dinâmico e investigar por que a rotina paginada de banco 21 não altera esses flags no caminho de entrada `0xEF`.
+
+## Matriz de entradas após a captura real
+
+Com a ROM real, a matriz temporizada manteve `0xFF` até o bloco 260, pressionou cada máscara por 30 blocos e liberou em seguida. As máscaras `0xFE`, `0xFD`, `0xFB`, `0xF7`, `0xBF` e `0x7F` terminaram em `0x3537` com `FFFF=0x84`; as máscaras `0xEF` e `0xDF` terminaram em `0x4073` com `FFFE=0x95` e `FFFF=0x0C`.
+
+A leitura da porta de controle ocorreu no bloco 265, confirmando a janela temporal. Cada relatório principal foi submetido ao auditor e todos retornaram `risk` por não alcançarem `0x4A8D`; portanto, nenhum caminho da matriz foi aceito como evidência de diálogo. No caminho `0xEF/0xDF`, o trace estreito e amostrado confirmou repetição da espera em torno de `0x406F/0x4073`, com `C008=0x02` e `C203=0x01`, sem saturação após a introdução de `--trace-every`.
+
+A filtragem correta dos relatórios também foi registrada operacionalmente: arquivos `*-trace.json` são artefatos auxiliares e não devem ser passados como relatório principal ao auditor. O próximo passo é instrumentar a correlação entre os escritores estáticos de `C008/C203` e os eventos dinâmicos, além de localizar a rotina paginada que deveria consumir ou alterar o estado de cena após `0x4073`.
