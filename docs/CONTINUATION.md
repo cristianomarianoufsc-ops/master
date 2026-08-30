@@ -216,6 +216,12 @@ A janela física de `0x8B80–0x8BCF` foi extraída do banco 2, ativo quando `FF
 
 A correspondência entre `DD17` e `DDF7` ocorre na oitava iteração, com os campos associados em `DE0F–DE12`, exatamente os endereços observados no trace. A interpretação correta é que o chamador leva a execução ao limpador geral enquanto a operação A0 ainda está pendente. O próximo probe deve capturar o fluxo de entrada e o endereço de retorno imediatamente antes de `0x8B81`, correlacionando `DD03`, `DD97`, `DDB7` e `C203`. Nenhum desbloqueio sintético deve ser usado.
 
+## Descoberta: variantes de timing mudam o bloqueio, mas não alcançam 0x4A8D
+
+A mesma sequência causal foi testada com três modelos: baseline sem agendamento de scanlines, modelo Dega com `--scanline-irq` e `--dega-frame-schedule`, e modelo Dega com oito leituras antes de liberar a espera VDP. Os PCs finais foram, respectivamente, `0x3546`, `0x4070` e `0x4073`; nenhum alcançou `0x4A8D`. O relatório está em `build/a0_timing_variants.md`.
+
+O modelo Dega com agendamento de scanlines continua sendo a referência, porque reproduz o fluxo de cena e o bloqueio A0/C203. O baseline é controle negativo; aumentar o limiar VDP altera o ponto do loop, mas não resolve a transição. Não será usado como correção um desbloqueio artificial de `C203`.
+
 ## Descoberta: matriz de duas janelas não alcança o diálogo
 
 Foi criada `tools/run_two_window_matrix.py` para testar os valores `0x00`, `0x10`, `0x20` e `0x30` nas duas janelas reais de leitura do controle, nos blocos 265 e 527. As 16 combinações foram executadas com semântica de I/O do Dega até o bloco 900. Quinze combinações terminaram em `0x406C` com `FFFF=0x16`; a combinação sem entrada nas duas janelas terminou em `0x3548` com `FFFF=0x84`. Nenhuma alcançou `0x4A8D`.
