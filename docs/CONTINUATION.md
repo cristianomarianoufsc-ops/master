@@ -167,3 +167,11 @@ Essa evidência confirma que a espera de `0x406F` não pode ser liberada simples
 O trace passou a distinguir `irq_requested`, `irq_injected` e `vblank_tick`. Uma execução sem registros repetitivos, usando `--trace-pc-range 0x0000-0x0000`, confirmou VBlanks nos blocos 2, 264 e 526. As solicitações e aceitações de IRQ ocorreram nos blocos 264 e 526, portanto a ausência aparente de VBlanks em traces anteriores era causada pelo limite do arquivo sendo consumido pelas leituras repetitivas de `C008/C203`, não por uma falha da cadência.
 
 Mesmo com IRQs periódicas aceitas, o caminho do botão `0xEF` continua em `0x406F/0x4073`, com `C008=0x02` e `C203=0x01`. A hipótese de que bastaria gerar mais VBlanks foi descartada. A investigação deve agora acompanhar o handler em `0x0038` e os escritores de `C008/C203` depois da segunda IRQ, procurando a diferença entre o estado esperado pelo jogo e o estado produzido pelo modelo VDP.
+
+## Gate contra falsos positivos
+
+Foi criada `tools/audit_false_positives.py` para auditar relatórios e traces antes de aceitar uma conclusão. A ferramenta sinaliza, entre outros riscos, breakpoint não alcançado, trace saturado, erro de captura, configuração de temporização não referencial, ausência de leitura de controle, divergência entre IRQ solicitada e aceita, vetor de IRQ inválido, flags `C008/C203` presas e PC dominante indicando loop.
+
+O auditor retorna `status=pass` apenas quando não encontra alertas, `status=review` quando há avisos que exigem análise humana e `status=risk` quando encontra risco crítico; nesse último caso o processo termina com código diferente de zero. O resultado não prova a correção do emulador: ele funciona como barreira contra aceitar evidência incompleta ou confundida com progresso.
+
+Aplicado à captura longa do caminho `0xEF`, o auditor retornou `status=risk` e detectou corretamente `BREAKPOINT_NOT_REACHED` (`PC=0x4074`, alvo `0x4A8D`) e `TRACE_SATURATED` (`500000/500000` registros). Essa captura não deve ser usada como snapshot nem como prova de que o diálogo foi alcançado.
