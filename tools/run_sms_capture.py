@@ -24,6 +24,8 @@ p.add_argument("--irq-every-runs", type=int, default=1,
                help="inject a VBlank-like IM1 IRQ every N native runs; 0 disables")
 p.add_argument("--scanline-irq", action="store_true",
                help="schedule VBlank/H-interrupt at SMS scanline boundaries")
+p.add_argument("--dega-frame-schedule", action="store_true",
+               help="use Dega's frame order: line 192, 193-261, then 0-191")
 p.add_argument("--input-value", type=lambda x: int(x, 0), default=0xFF,
                help="value returned by SMS controller ports DC/C0")
 p.add_argument("--input-sequence", type=str, default=None,
@@ -62,7 +64,8 @@ reads = {}
 writes = {}
 last_pc = None
 vdp_wait_reads = 0
-scanline = 0
+scanline = 192 if a.dega_frame_schedule else 0
+hint_counter = 0
 
 
 def ram_index(addr):
@@ -179,18 +182,33 @@ def inject_im1_irq():
 
 
 def schedule_scanline_irq():
-    """Advance one NTSC scanline and request enabled SMS raster interrupts."""
-    global scanline
-    scanline = (scanline + 1) % 262
+    """Advance one NTSC scanline and request enabled SMS raster interrupts.
+
+    With ``--dega-frame-schedule``, the order matches MastFrame(): line 192
+    first (VBlank status is already visible), then 193..261, then 0..191.
+    """
+    global scanline, hint_counter
+    if a.dega_frame_schedule:
+        current = scanline
+        scanline = 193 if current == 192 else (0 if current == 261 else current + 1)
+    else:
+        scanline = (scanline + 1) % 262
+        current = scanline
+
     requested = False
-    if scanline == 193:
+    if current == 193:
         vdp["stat"] |= 0x80
         requested = bool(vdp["regs"][1] & 0x20)
-    elif scanline <= 192:
-        # Dega's line counter starts from Reg[10] at the top of the display.
-        line_counter = (scanline - 1) & 0xFF
-        requested = bool(vdp["regs"][0] & 0x10 and
-                         line_counter == vdp["regs"][10])
+    elif current <= 192:
+        if current == 0:
+            hint_counter = vdp["regs"][10]
+        else:
+            hint_counter -= 1
+        if hint_counter < 0:
+            vdp["stat"] |= 0x40
+            requested = bool(vdp["regs"][0] & 0x10)
+            hint_counter = vdp["regs"][10]
+
     if requested:
         return inject_im1_irq()
     return False
@@ -253,6 +271,9 @@ report = {
     "input": {"default": a.input_value & 0xFF,
               "sequence": input_sequence,
               "history_tail": input_history[-64:]},
+    "timing": {"scanline_irq": a.scanline_irq,
+               "dega_frame_schedule": a.dega_frame_schedule,
+               "scanline": scanline, "hint_counter": hint_counter},
     "result": result,
     "steps": steps,
     "events": events[-32:],

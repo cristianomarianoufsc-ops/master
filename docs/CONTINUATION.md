@@ -123,3 +123,11 @@ O executor `tools/run_sms_capture.py` agora aceita `--input-sequence`, uma lista
 Essa mudança permite testar combinações de soltura, pressionamento e manutenção de botões sem alterar a ROM, mas não constitui ainda um modelo completo de eventos do jogo. A sequência atua apenas na fronteira entre chamadas `run()`; o estado de frames, VBlank e o retorno correto das IRQs continua sendo uma limitação documentada.
 
 A alteração foi validada com `py_compile`, `--help` e uma ROM sintética temporária de 32 bancos, confirmando o parsing de `0xFE,0xFD` e seu registro no relatório. A dependência pública `z80==1.0.0` foi instalada no ambiente de execução; a ROM sintética e o relatório de teste permaneceram fora do repositório.
+
+## Avanço atual: ROM japonesa e ordem de frame do Dega
+
+A ROM japonesa foi recebida localmente como `input/KujakuOu_Japan.sms` e o pacote `Dega-1.12.tar.gz` foi extraído somente em área temporária para referência. Ambos permanecem fora do Git conforme a política do projeto.
+
+A comparação com `mast/frame.cpp` confirmou que o Dega executa cada frame na ordem `MastY=192`, depois `193–261` e finalmente `0–191`, com `228` ciclos por linha em NTSC. O capturador recebeu a opção `--dega-frame-schedule` para reproduzir essa ordem, mantendo o modo anterior disponível para comparação. O processamento de H-interrupt foi alinhado ao contador `Reg[10]` e o VBlank continua condicionado a `Reg[1] & 0x20`.
+
+Na captura real com a ROM (`120` blocos, `50.000` ticks por bloco, `--scanline-irq --dega-frame-schedule`, entrada `FF,FE,FF`), o executor chegou a `0x3591`, com `FFFF=0x84` e VRAM com `2626` bytes não nulos, mas ainda não alcançou `0x4A8D`; os campos `C022`, `C025–C028`, `C205`, `C215`, `C251`, `C280` e `C281` permaneceram zerados. Portanto, a captura ainda não deve ser usada como snapshot real. O próximo diagnóstico deve concentrar-se no loop principal em `0x34xx–0x3591`, no estado de entrada e na semântica de retorno/aceitação de IRQ, antes de ampliar o número de frames.
