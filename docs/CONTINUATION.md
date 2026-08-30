@@ -298,3 +298,7 @@ A comparação direta do dispatcher no caminho bloqueado mostrou que ele executa
 ## Descoberta: FFFF=0x0C executa, mas não arma DD57
 
 A comparação do dispatcher confirmou que `FFFF=0x0C` não é banco ausente: `0x83E7` e os handlers de tarefa são executados. A diferença decisiva é que `DD57` permanece `0`, enquanto no caminho progressivo recebe `0x80`. O pedido chega a `0x406F` com `C203=1`, mas sem uma tarefa ativa para limpar o flag. O relatório está em `build/bank0c_dispatch_correlation.md`. O próximo diagnóstico deve comparar `DD03` e o índice de `sub_857C` entre os caminhos `0x0C` e `0x16`.
+
+## Correção: comando A0 é roteado para DDD7, não DD57
+
+A comparação de `DD03` revelou `DD03=0xA0` no bloco 265 no caminho bloqueado. Pela desassemblagem de `0x83E7`, o caso `0xA0` passa por `0x84D2` e seleciona `DE=DDD7` em `0x8504`; portanto, a hipótese anterior que tratava `DD57=0` como prova direta da tarefa pendente foi corrigida. O estado forte continua sendo `0x406F` lendo `C203=1` após `DD03=0xA0`. O próximo diagnóstico deve seguir `DDD7–DDF6`, não apenas `DD57–DD76`. Relatório: `build/command_a0_routing_correction.md`.
