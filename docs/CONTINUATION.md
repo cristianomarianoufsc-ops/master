@@ -99,3 +99,9 @@ A validação com a ROM foi bem-sucedida: o boot executou escritas VDP e produzi
 O capturador recebeu `--irq-every-runs` e uma injeção controlada de IRQ modo IM1 entre blocos nativos. Como o binding Python do núcleo Z80 expõe `IFF` apenas para leitura e não possui uma API pública de latch de IRQ, a implementação usa o `state_view()` gravável para empilhar o PC, limpar IFF1/IFF2 e saltar para `0038h`. Isso é útil para diagnóstico, mas ainda não é considerado um modelo final de temporização.
 
 Os testes confirmaram que o vetor de IRQ é alcançado, porém o retorno/coordenação do handler ainda não está correto: com IRQ frequente o PC pode permanecer em `0038h`/rotinas de serviço e `D120–D135` continuam zerados. Não usar os valores obtidos nessa fase como snapshot real. A próxima correção deve reproduzir a cadência por scanline do Dega e preservar o estado de interrupção/retorno com a mesma semântica do hardware, ou então compilar um harness nativo do núcleo Doze sem depender da GUI SDL.
+
+## Teste de cadência por scanline
+
+Foi adicionado `--scanline-irq` ao `tools/run_sms_capture.py`. O modo avança uma linha NTSC por execução nativa (`228` ciclos), marca VBlank na linha 193 e considera H-interrupt conforme os bits dos registradores VDP `Reg[0]` e `Reg[10]`, seguindo a estrutura de `frame.cpp` do Dega.
+
+O teste de 12.000 linhas/execuções compilou e terminou rapidamente, mas ficou em `0x0545` com os registradores VDP ainda zerados e sem alcançar `0x4A8D`. Isso mostra que a cadência não deve ser aplicada desde o reset sem modelar o restante do protocolo de frame; não há snapshot válido nesta etapa. O próximo passo é inicializar o frame/VDP no ponto correto e tratar a espera em `0x0545` por seu contexto, em vez de liberar loops genericamente.

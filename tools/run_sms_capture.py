@@ -22,6 +22,8 @@ p.add_argument("--vdp-wait-reads", type=int, default=2,
                help="reads of C008 before the diagnostic VDP wait is released")
 p.add_argument("--irq-every-runs", type=int, default=1,
                help="inject a VBlank-like IM1 IRQ every N native runs; 0 disables")
+p.add_argument("--scanline-irq", action="store_true",
+               help="schedule VBlank/H-interrupt at SMS scanline boundaries")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
 
@@ -39,6 +41,7 @@ reads = {}
 writes = {}
 last_pc = None
 vdp_wait_reads = 0
+scanline = 0
 
 
 def ram_index(addr):
@@ -153,6 +156,24 @@ def inject_im1_irq():
     vdp["stat"] |= 0x80
     return True
 
+
+def schedule_scanline_irq():
+    """Advance one NTSC scanline and request enabled SMS raster interrupts."""
+    global scanline
+    scanline = (scanline + 1) % 262
+    requested = False
+    if scanline == 193:
+        vdp["stat"] |= 0x80
+        requested = bool(vdp["regs"][1] & 0x20)
+    elif scanline <= 192:
+        # Dega's line counter starts from Reg[10] at the top of the display.
+        line_counter = (scanline - 1) & 0xFF
+        requested = bool(vdp["regs"][0] & 0x10 and
+                         line_counter == vdp["regs"][10])
+    if requested:
+        return inject_im1_irq()
+    return False
+
 cpu = z80.Z80Machine()
 cpu.set_read_callback(read_mem)
 cpu.set_write_callback(write_mem)
@@ -175,7 +196,10 @@ try:
         # diagnostic runner can continue through multiple frames/events.
         cpu.ticks_to_stop = a.ticks_per_run
         events.append({"event": event, "pc": f"0x{cpu.pc:04X}"})
-        if a.irq_every_runs and steps % a.irq_every_runs == 0:
+        if a.scanline_irq:
+            if schedule_scanline_irq():
+                events[-1]["irq_injected"] = True
+        elif a.irq_every_runs and steps % a.irq_every_runs == 0:
             if inject_im1_irq():
                 events[-1]["irq_injected"] = True
         if cpu.pc == a.breakpoint:
