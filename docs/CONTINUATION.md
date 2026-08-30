@@ -73,3 +73,7 @@ A ferramenta `tools/emulate_04bbd_exact.py` reproduz essa semântica e exige os 
 Foi adicionada `tools/emulate_runtime_initialization.py`, que reproduz em uma única execução as semânticas confirmadas de `04BBD`, `04BD5`, `04D16` e `04CFD` sobre a ordem de inicialização observada no banco 21. Ela aceita bytes de RAM por `--set ADDR=VALUE` ou `--ram-json`, lista endereços ausentes e grava os buffers/resultados em um relatório. O estado vazio e um vetor sintético foram executados com sucesso; o estado vazio não deve ser interpretado como o estado real do jogo.
 
 A ROM local foi usada apenas como entrada. A próxima melhoria necessária é conectar um trace de emulador ou snapshot obtido no ponto `0x4A8D`, quando `D120–D135` já refletem o estado do jogo. Com esse snapshot, a ferramenta poderá produzir os valores reais de `C022`, `C025–C028`, `C205`, `C215`, `C251`, `C281` e os buffers consumidos pela construção de `C280`.
+
+## Avanço atual: executor SMS instrumentado
+
+Foi adicionada `tools/run_sms_capture.py`, um executor diagnóstico que usa uma CPU Z80 real, mapeia os 32 bancos da ROM e controla `FFFE`/`FFFF`, RAM SMS e breakpoints. O teste inicial revelou uma espera em `0x04E7` dependente do VDP; foi incluído um stub limitado e explícito para liberar essa espera. Com ciclos agrupados, o executor agora avança pelo boot até rotinas de inicialização em torno de `0x4912`/`0x3542`, embora ainda não alcance `0x4A8D`. O próximo trabalho é modelar as demais esperas de VDP/interrupção, validando cada uma por contexto, antes de aceitar qualquer snapshot como real.
