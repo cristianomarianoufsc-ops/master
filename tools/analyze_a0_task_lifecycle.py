@@ -45,7 +45,7 @@ def is_read(record):
 
 def selected(record):
     address = addr(record)
-    return address in {0xC008, 0xC203, 0xDD03, 0xDD97} or (
+    return address in {0xC008, 0xC203, 0xDD03, 0xDD97, 0xDDB7} or (
         address is not None and a.group_start <= address <= a.group_end)
 
 selected_records = [(index, record) for index, record in enumerate(records)
@@ -56,7 +56,7 @@ selected_records = [(index, record) for index, record in enumerate(records)
 events = []
 for index, record in selected_records:
     address = addr(record)
-    if is_write(record) or address in {0xC008, 0xC203, 0xDD03, 0xDD97}:
+    if is_write(record) or address in {0xC008, 0xC203, 0xDD03, 0xDD97, 0xDDB7}:
         events.append((index, record))
 
 by_run = defaultdict(list)
@@ -94,7 +94,7 @@ for run_id in sorted(by_run, key=lambda value: int(value) if str(value).isdigit(
     lines.append(f"| {run_id} | `{writes}` | `{pcs}` | `{banks}` |")
 
 lines += ["", "## Summary", ""]
-for address in (0xC008, 0xC203, 0xDD03, 0xDD97):
+for address in (0xC008, 0xC203, 0xDD03, 0xDD97, 0xDDB7):
     writes = [(run(r), r.get("pc", "?"), r.get("value", "?"))
               for _, r in events if addr(r) == address and is_write(r)]
     lines.append(f"- `0x{address:04X}` writes: `{len(writes)}`; "
@@ -105,7 +105,7 @@ lines.append(f"- Group `{fmt16(a.group_start)}–{fmt16(a.group_end)}` writes: `
 
 # Report concise local context around the first writes to DDF7 and DD97.
 anchors = [(index, record) for index, record in events
-           if is_write(record) and addr(record) in {a.group_start, 0xDD97}]
+           if is_write(record) and addr(record) in {a.group_start, 0xDD97, 0xDDB7}]
 if anchors:
     lines += ["", "## Context around task arming", ""]
     for index, anchor in anchors[:8]:
@@ -120,7 +120,7 @@ if anchors:
 
 # Make the evidence boundary explicit for downstream review.
 lines += ["", "## Interpretation guard", "", ""
-          "A task is considered **armed** only when a write to the group or DD97 "
+          "A task is considered **armed** only when a write to the group, DD97, or DDB7 "
           "is observed. A task is considered **cleared** only when the trace shows "
           "the corresponding write; a persistent C203 read alone is not evidence "
           "of why the task was not consumed.", ""]
