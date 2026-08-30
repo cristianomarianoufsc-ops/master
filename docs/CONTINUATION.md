@@ -111,3 +111,7 @@ O teste de 12.000 linhas/execuções compilou e terminou rapidamente, mas ficou 
 A disassemblagem de `0x053F–0x054D` confirmou que `0x0545` apenas executa um atraso aninhado (`BC=0x1999`, `B=0x14`) e retorna. O bloqueio aparente observado nessa faixa não era uma espera de hardware. Com o modelo VDP atual, a execução passa por esse atraso e chega ao loop principal em `0x34xx`, com escritas reais em VRAM e troca do banco `FFFF` para `0x84`.
 
 A busca por `CALL 0545` não encontrou chamadas diretas porque a rotina é alcançada por `CALL 053F`/outros caminhos. O breakpoint `0x4A8D` não ocorre no boot inicial: a execução precisa avançar por uma transição de jogo/cena e por entrada de usuário para chegar à inicialização de diálogo. Portanto, o próximo passo não é liberar mais um loop de VDP, mas modelar o estado de entrada/frames ou localizar um ponto de entrada de cena que leve ao código em `0x4A8D`.
+
+## Entrada de controle configurável
+
+O capturador recebeu `--input-value`, usado nas portas SMS `DC/C0`, para permitir testes reproduzíveis de ações sem alterar o código. A varredura dos valores ativos comuns (`FF`, `FE`, `FD`, `FB`, `F7`, `EF`, `DF`, `BF`, `7F`) produziu o mesmo fluxo: `step_limit` em `0x3546` após 500 execuções nativas, com banco `FFFF=0x84`. Portanto, uma entrada fixa isolada não avança a cena; o loop principal depende também do estado de frame/rotinas de jogo e possivelmente de transições temporais. Não foi obtido snapshot válido.

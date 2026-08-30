@@ -24,6 +24,8 @@ p.add_argument("--irq-every-runs", type=int, default=1,
                help="inject a VBlank-like IM1 IRQ every N native runs; 0 disables")
 p.add_argument("--scanline-irq", action="store_true",
                help="schedule VBlank/H-interrupt at SMS scanline boundaries")
+p.add_argument("--input-value", type=lambda x: int(x, 0), default=0xFF,
+               help="value returned by SMS controller ports DC/C0")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
 
@@ -99,7 +101,7 @@ def input_port(port):
     if port == 0x7F:
         return 0x40
     if port in (0xDC, 0xC0):
-        return 0xFF
+        return a.input_value & 0xFF
     if port in (0xDD, 0xC1):
         # The supplied ROM is Japanese; bit behavior follows Dega's MX_JAPAN.
         return 0xFF
