@@ -161,3 +161,9 @@ Foi testado liberar artificialmente a espera de `C008` também em `0x406F`; o fl
 O trace foi ampliado para registrar `C008`, além dos registradores `A–L` do Z80. No caminho acionado por um pulso de `0xEF` no bloco 265, a execução entra no banco físico 21 com `FFFE=0x95` e `FFFF=0x16`, e permanece no ciclo `0x406F/0x4073`. Durante aproximadamente 25 mil leituras, `C008` permaneceu em `0x02` e `C203` em `0x01`; nos eventos observados, `B=0`, `C=1` e `A` alternou entre os valores usados pelo teste da condição.
 
 Essa evidência confirma que a espera de `0x406F` não pode ser liberada simplesmente zerando `C008`: o estado de cena em `C203` também participa da condição, e a combinação atual representa uma operação de carregamento ainda pendente. A ferramenta não foi alterada para forçar essa transição. O próximo passo é mapear os escritores de `C008` e `C203` e comparar o caminho com uma execução real do Dega, antes de introduzir qualquer valor sintético.
+
+## Avanço atual: VBlank periódico confirmado
+
+O trace passou a distinguir `irq_requested`, `irq_injected` e `vblank_tick`. Uma execução sem registros repetitivos, usando `--trace-pc-range 0x0000-0x0000`, confirmou VBlanks nos blocos 2, 264 e 526. As solicitações e aceitações de IRQ ocorreram nos blocos 264 e 526, portanto a ausência aparente de VBlanks em traces anteriores era causada pelo limite do arquivo sendo consumido pelas leituras repetitivas de `C008/C203`, não por uma falha da cadência.
+
+Mesmo com IRQs periódicas aceitas, o caminho do botão `0xEF` continua em `0x406F/0x4073`, com `C008=0x02` e `C203=0x01`. A hipótese de que bastaria gerar mais VBlanks foi descartada. A investigação deve agora acompanhar o handler em `0x0038` e os escritores de `C008/C203` depois da segunda IRQ, procurando a diferença entre o estado esperado pelo jogo e o estado produzido pelo modelo VDP.

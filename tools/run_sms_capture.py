@@ -212,6 +212,7 @@ def request_irq():
     """Latch an SMS interrupt request until the CPU can accept it."""
     global pending_irq
     pending_irq = True
+    trace_event("irq_requested", force=True)
 
 
 def inject_im1_irq():
@@ -258,6 +259,7 @@ def schedule_scanline_irq():
     requested = False
     if current == 193:
         vdp["stat"] |= 0x80
+        trace_event("vblank_tick", value=vdp["regs"][1], force=True)
         requested = bool(vdp["regs"][1] & 0x20)
     elif current <= 192:
         if current == 0:
