@@ -223,3 +223,11 @@ A hipótese atual permanece: o carregamento iniciado em `0x40F5–0x40FA` depend
 O capturador passou a registrar escritas em `C008` e `C203` independentemente da faixa de PCs configurada para o trace. Isso evita perder produtores que executam em handlers de IRQ, no boot ou em bancos diferentes da rotina sob investigação. A opção não altera a execução; apenas garante que os eventos de escrita dos dois flags sejam preservados no relatório.
 
 A validação com captura curta passou e o auditor retornou `risk` somente por breakpoint não alcançado, IRQ solicitada sem aceitação, ausência de leitura de controle na faixa escolhida e loop dominante em `0x04E4`. A nova instrumentação foi confirmada pelo registro das escritas em `C008` durante o boot, mesmo com trace restrito a outra faixa de PCs. Ela será usada no próximo experimento de correlação entre escritores e o loop de cena.
+
+## Avanço atual: primeira conclusão real de carregamento
+
+A captura padrão com a ROM real, sem liberar artificialmente `C008/C203`, foi estendida para 650 blocos usando a janela de entrada `0xEF` e a instrumentação de escritores forçados. O trace foi auditado e retornou `risk` porque `0x4A8D` ainda não foi alcançado, mas revelou uma transição real importante.
+
+No bloco 305, a rotina em `0x40F5–0x40FA` iniciou o carregamento com `C008=2`, `C203=1` e `C204=1`. No bloco 527, após o VBlank/IRQ seguinte, `0x01A1` limpou `C008` e a rotina em `0x432F` limpou `C203`. Isso demonstra que o loop `0x406C` pode ser concluído pelo fluxo normal, sem desbloqueio sintético. Em seguida, no bloco 536, o programa iniciou uma segunda operação no banco `FFFF=0x13`, gravando `C008=2` e `C203=2` em `0x412A/0x412D`.
+
+Esse resultado corrige a hipótese anterior de que o primeiro carregamento permanecia permanentemente preso. O capturador está reproduzindo pelo menos uma conclusão real de operação e avançando para um segundo carregamento, embora a captura de 650 blocos ainda termine sem `0x4A8D`. O próximo passo é estender a execução após o bloco 536 e rastrear essa segunda operação, preservando as escritas forçadas de `C008/C203` e usando o auditor antes de aceitar qualquer novo marco.
