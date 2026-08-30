@@ -67,3 +67,9 @@ A referência `04BD5` foi localizada no banco físico 21, no offset `0x0BD5`, qu
 Com a ROM japonesa fornecida localmente, a rotina física em `0x4BBD` do banco 21 foi disassemblada e confirmada como produtora de máscaras compactadas. Ela lê uma tabela do banco 19 contendo registros `(endereço de RAM, máscara)`, testa cada registro e combina os resultados nos bits `0..7` de `A`, usando `EX AF,AF'` enquanto lê a RAM e `RLC C` para avançar a máscara de saída. Os chamadores em `0x4A8D–0x4B0D` gravam os resultados em `C022`, `C025–C028`, `C215`, `C205`, `C281` e `C251`.
 
 A ferramenta `tools/emulate_04bbd_exact.py` reproduz essa semântica e exige os valores de RAM explicitamente. O relatório `build/04bbd_exact_semantics.md` registra o disassembly, o mapeamento das tabelas e a cadeia subsequente `04BD5 -> 04D16`. A ROM permanece em `input/`, ignorada pelo Git. Ainda falta obter um trace ou snapshot do estado de RAM no ponto `0x4A8D` para produzir o `C280` real; não se deve usar estado zerado como resultado final.
+
+## Ferramenta de continuidade: inicialização em runtime
+
+Foi adicionada `tools/emulate_runtime_initialization.py`, que reproduz em uma única execução as semânticas confirmadas de `04BBD`, `04BD5`, `04D16` e `04CFD` sobre a ordem de inicialização observada no banco 21. Ela aceita bytes de RAM por `--set ADDR=VALUE` ou `--ram-json`, lista endereços ausentes e grava os buffers/resultados em um relatório. O estado vazio e um vetor sintético foram executados com sucesso; o estado vazio não deve ser interpretado como o estado real do jogo.
+
+A ROM local foi usada apenas como entrada. A próxima melhoria necessária é conectar um trace de emulador ou snapshot obtido no ponto `0x4A8D`, quando `D120–D135` já refletem o estado do jogo. Com esse snapshot, a ferramenta poderá produzir os valores reais de `C022`, `C025–C028`, `C205`, `C215`, `C251`, `C281` e os buffers consumidos pela construção de `C280`.
