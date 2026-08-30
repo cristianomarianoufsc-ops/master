@@ -35,6 +35,8 @@ p.add_argument("--input-value", type=lambda x: int(x, 0), default=0xFF,
                help="value returned by SMS controller ports DC/C0")
 p.add_argument("--input-sequence", type=str, default=None,
                help="comma-separated hex/decimal controller values, one per native run")
+p.add_argument("--dega-io-semantics", action="store_true",
+               help="use Dega-compatible V-counter and active-low controller reads")
 p.add_argument("--trace-pc-range", type=str, default="0x3400-0x35A0",
                help="inclusive PC range to trace, for example 0x3400-0x35A0")
 p.add_argument("--trace-limit", type=int, default=20000,
@@ -184,12 +186,16 @@ def input_port(port):
         pending_irq = False
         return value
     if port == 0x7E:
+        if a.dega_io_semantics:
+            return (scanline - 6) & 0xFF if scanline > 0xDA else scanline & 0xFF
         return 0
     if port == 0x7F:
         return 0x40
     if port in (0xDC, 0xC0):
-        trace_event("controller_read", port, current_input, force=True)
-        return current_input
+        value = ((~(current_input & 0x3F)) & 0xFF
+                 if a.dega_io_semantics else current_input)
+        trace_event("controller_read", port, value, force=True)
+        return value
     if port in (0xDD, 0xC1):
         trace_event("region_read", port, 0xFF, force=True)
         # The supplied ROM is Japanese; bit behavior follows Dega's MX_JAPAN.
@@ -357,6 +363,7 @@ report = {
     "breakpoint": f"0x{a.breakpoint:04X}",
     "input": {"default": a.input_value & 0xFF,
               "sequence": input_sequence,
+              "dega_io_semantics": a.dega_io_semantics,
               "history_tail": input_history[-64:]},
     "timing": {"vdp_wait_pcs": [f"0x{x:04X}" for x in sorted(vdp_wait_pcs)],
                "scanline_irq": a.scanline_irq,

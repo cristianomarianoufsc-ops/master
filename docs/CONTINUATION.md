@@ -231,3 +231,12 @@ A captura padrão com a ROM real, sem liberar artificialmente `C008/C203`, foi e
 No bloco 305, a rotina em `0x40F5–0x40FA` iniciou o carregamento com `C008=2`, `C203=1` e `C204=1`. No bloco 527, após o VBlank/IRQ seguinte, `0x01A1` limpou `C008` e a rotina em `0x432F` limpou `C203`. Isso demonstra que o loop `0x406C` pode ser concluído pelo fluxo normal, sem desbloqueio sintético. Em seguida, no bloco 536, o programa iniciou uma segunda operação no banco `FFFF=0x13`, gravando `C008=2` e `C203=2` em `0x412A/0x412D`.
 
 Esse resultado corrige a hipótese anterior de que o primeiro carregamento permanecia permanentemente preso. O capturador está reproduzindo pelo menos uma conclusão real de operação e avançando para um segundo carregamento, embora a captura de 650 blocos ainda termine sem `0x4A8D`. O próximo passo é estender a execução após o bloco 536 e rastrear essa segunda operação, preservando as escritas forçadas de `C008/C203` e usando o auditor antes de aceitar qualquer novo marco.
+
+
+## Validação: semântica de I/O compatível com Dega
+
+O código de referência do Dega foi extraído somente para `/home/ubuntu/reference/dega-1.12/`. A comparação com `mast/frame.cpp` e `mast/mem.cpp` identificou duas diferenças úteis para o diagnóstico: o valor do V-counter na porta `0x7E` e a conversão ativa-baixa das portas de controle `0xDC/0xC0`. O capturador recebeu a opção opcional `--dega-io-semantics`, preservando o comportamento histórico quando ela não é usada.
+
+A captura com essa opção, 900 blocos, agendamento de frame do Dega e entrada interna `0x00, 0x10, 0x00` na janela já documentada, reproduziu o mesmo caminho: leitura `0xEF` no bloco 265, PC final `0x406C`, `FFFE=0x95`, `FFFF=0x16`, `C021=0x88`, `C022=1`, `C205=0` e `C280=0`. O auditor retornou `risk` por `BREAKPOINT_NOT_REACHED`, entrada variável e `C203=2` preso na espera.
+
+A semântica de I/O do Dega, portanto, não é a causa principal do bloqueio da segunda operação. O próximo foco continua sendo a cadeia iniciada em `0x403A/0x403F` e a rotina paginada que deveria consumir o carregamento e limpar `C203`; não usar desbloqueios sintéticos nem esse resultado para declarar `C280` válido. O relatório detalhado está em `build/dega_io_semantics_validation.md`.
