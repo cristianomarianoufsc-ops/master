@@ -201,3 +201,11 @@ Foi adicionada a opção explicitamente experimental `--diagnostic-release-scene
 O probe com a janela `0xEF` não alcançou `0x4A8D`; após o desbloqueio artificial, a execução retornou a `0x04E7` e terminou com `BREAKPOINT_NOT_REACHED`. O auditor classificou o relatório como `risk`. Esse resultado é útil apenas como diagnóstico: liberar `C008/C203` não resolve a causa, mas desloca a execução para outra espera anterior do boot. A opção deve permanecer marcada como experimental e nunca ser usada para validar o estado de `C280`.
 
 A análise estática confirmou que `0x406C` é um loop que só retorna quando `C203` e `C008` estão ambos zerados. No caminho testado, `0x40F5–0x40FA` grava `C008=2`, `C203=1` e `C204=1`; a IRQ em `0x01A1` limpa `C008`, mas não `C203`. A única referência direta encontrada a `HL=C203` está na rotina em torno de `0x433D`, que não foi alcançada pelo probe. O próximo passo é reconstruir a cadeia de carregamento que deveria chamar essa rotina, em vez de liberar flags sinteticamente.
+
+## Probe completo após a publicação do diagnóstico
+
+Após o commit do probe diagnóstico, foi repetido o experimento com os pontos de espera do boot (`0x04E7/0x04EA/0x04EB`) e da cena (`0x406F/0x4073`) configurados simultaneamente. A captura percorreu 650 blocos, observou três VBlanks e três IRQs aceitas, mas terminou em `0x4000` com `FFFF=0x82`, sem alcançar `0x4A8D`. O auditor retornou `risk` por `BREAKPOINT_NOT_REACHED`; a entrada variável foi registrada como advertência.
+
+O trace não saturado registrou atividade nos PCs `0x4017`, `0x4065`, `0x406A`, `0x406F`, `0x4073`, `0x43F2`, `0x4496` e `0x4939`, mas a liberação artificial não produziu uma transição estável para o diálogo. Em vez disso, o fluxo voltou a rotinas de inicialização e alternância de banco. Isso reforça que limpar `C008/C203` não é um substituto para a operação de carregamento real; o probe serve somente para localizar dependências posteriores.
+
+A partir desta etapa, não serão feitos novos desbloqueios sintéticos como tentativa de alcançar `0x4A8D`. A investigação deve se concentrar na causa do carregamento pendente: a rotina em `0x40F5–0x40FA` inicia a operação, o loop em `0x406C` aguarda ambos os flags zerarem, e as rotinas que deveriam consumir o estado precisam ser reproduzidas na ordem correta do jogo/emulador.
