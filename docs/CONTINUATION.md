@@ -302,3 +302,7 @@ A comparação do dispatcher confirmou que `FFFF=0x0C` não é banco ausente: `0
 ## Correção: comando A0 é roteado para DDD7, não DD57
 
 A comparação de `DD03` revelou `DD03=0xA0` no bloco 265 no caminho bloqueado. Pela desassemblagem de `0x83E7`, o caso `0xA0` passa por `0x84D2` e seleciona `DE=DDD7` em `0x8504`; portanto, a hipótese anterior que tratava `DD57=0` como prova direta da tarefa pendente foi corrigida. O estado forte continua sendo `0x406F` lendo `C203=1` após `DD03=0xA0`. O próximo diagnóstico deve seguir `DDD7–DDF6`, não apenas `DD57–DD76`. Relatório: `build/command_a0_routing_correction.md`.
+
+## Descoberta: comando A0 alcança DDD7, mas a tarefa permanece zerada
+
+O probe `DDD7–DDF6` confirmou que o comando `0xA0` chega ao grupo correto, mas `DDD7` permanece zero. Nos passes de inicialização em `0x8B8B–0x8B93`, `DDD7` e `DDEF–DDF2` são zerados; o dispatcher lê `DDD7=0` e não chama handler ativo. Não houve escrita `DDD7=0x80`. O relatório está em `build/command_a0_unarmed_task.md`. O próximo diagnóstico deve seguir a tabela/dados fornecidos a `sub_857C` e `sub_8536`, procurando por que a entrada do grupo A0 é nula.
