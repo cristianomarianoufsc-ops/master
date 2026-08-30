@@ -286,3 +286,7 @@ Foram testadas combinações internas `0x03`, `0x0C`, `0x10`, `0x20`, `0x30` e `
 ## Descoberta: C202 participa do ponteiro C206
 
 O probe determinístico de `C200–C20F` confirmou que a segunda operação em `0x412A/0x412D` calcula um valor em `C206` no bloco 531, após mudar `FFFF` para `0x16`: `C206=0x0080`, com a instrução em `0x4146`. O ciclo seguinte ainda conclui em `0x432F` e é rearmado em `0x406A`, mas retorna ao loop `0x4070`. Isso indica que o índice/estado em `C202` e o ponteiro em `C206` são candidatos mais promissores que os flags isolados para explicar a repetição da cena. Foram adicionados `tools/run_timed_capture.py` e `tools/summarize_memory_writes.py`; o relatório está em `build/c200_state_probe.md`.
+
+## Descoberta: bloqueio localizado em 0x406F com FFFF=0x0C
+
+O probe de acessos confirmou que o estado de bloqueio reproduzível começa no bloco 311: `0x406F` lê repetidamente `C203=1` enquanto `FFFF=0x0C`. Não há nova escrita de `C206` nem avanço ao breakpoint `0x4A8D`. O mesmo experimento também confirmou que outros ciclos alcançam `0x432F` e limpam `C203`, portanto o problema agora está restrito à cadeia do pedido associado ao banco `0x0C`/bit 0. O relatório está em `build/c206_block_state.md`; foi adicionado `tools/summarize_memory_accesses.py` para reproduzir a extração.
