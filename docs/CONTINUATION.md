@@ -240,3 +240,9 @@ O código de referência do Dega foi extraído somente para `/home/ubuntu/refere
 A captura com essa opção, 900 blocos, agendamento de frame do Dega e entrada interna `0x00, 0x10, 0x00` na janela já documentada, reproduziu o mesmo caminho: leitura `0xEF` no bloco 265, PC final `0x406C`, `FFFE=0x95`, `FFFF=0x16`, `C021=0x88`, `C022=1`, `C205=0` e `C280=0`. O auditor retornou `risk` por `BREAKPOINT_NOT_REACHED`, entrada variável e `C203=2` preso na espera.
 
 A semântica de I/O do Dega, portanto, não é a causa principal do bloqueio da segunda operação. O próximo foco continua sendo a cadeia iniciada em `0x403A/0x403F` e a rotina paginada que deveria consumir o carregamento e limpar `C203`; não usar desbloqueios sintéticos nem esse resultado para declarar `C280` válido. O relatório detalhado está em `build/dega_io_semantics_validation.md`.
+
+## Nova ferramenta: ciclo de vida dos flags de cena
+
+Foi criada `tools/analyze_scene_flag_lifecycle.py`, que aceita uma captura ou trace JSON, normaliza endereços, agrupa escritas de `C008/C203` por PC, valor e bancos ativos, lista os blocos relevantes e mostra janelas locais de contexto. O relatório é observacional: não atribui causalidade a uma escrita e não libera flags sinteticamente.
+
+Aplicada à captura Dega de 900 blocos, a ferramenta confirmou 8 escritas de `C203`: inicialização em `0x00AD`, limpeza em `0x4939`, início em `0x40FA`, limpeza em `0x432F`, segunda inicialização em `0x412D`, e eventos posteriores em `0x4352/0x403F`. Também confirmou a segunda operação em `0x412A/0x412D` no bloco 531 e o novo início em `0x403A/0x403F` no bloco 789, quando o executor permanece em `0x406C`. O relatório condensado está em `build/dega_io_flag_lifecycle.md`.
