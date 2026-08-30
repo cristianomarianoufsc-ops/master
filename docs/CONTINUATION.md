@@ -368,3 +368,11 @@ Foi adicionada `tools/extract_a0_return_context.py`, ferramenta observacional qu
 A reprodução em 1.100 blocos, com semântica de I/O do Dega, agendamento de frame, IRQ por scanline, janela `0xFF` até o bloco 260 e pulso `0x10` por 30 blocos, terminou em `0x4070` sem alcançar `0x4A8D`. O auditor retornou `risk` por `BREAKPOINT_NOT_REACHED` e entrada variável. O trace confirmou `0x4496` no bloco 267 com SP `0xDFEE`, topo `0xEB/0x00` e escritas de limpeza em campos DDxx; também confirmou acessos posteriores ao limpador `0x8B81/0x8B8B`. O relatório detalhado está em `build/a0_resume_probe_2026-08-30.md`.
 
 Essa reprodução não é snapshot válido de `C280` e não identifica sozinha a causa da desmontagem. O próximo experimento deve separar os chamadores conhecidos de `0x8B62` (`0x0533` e `0x4569`) com faixa de execução estreita e correlação de `DDB7`, `DD97`, `DDF7–DE12`, `DD03`, retorno na pilha e bancos ativos, sem desbloqueios sintéticos.
+
+## Probe: duas janelas de chamada A0
+
+Foram executadas duas capturas independentes com a mesma entrada e temporização, uma observando `0x0500–0x0540` e outra `0x4540–0x4580`, para tentar separar os contextos associados aos chamadores `0x0533` e `0x4569`. Ambas terminaram em `0x4073` após 300 blocos, com `FFFE=0x95`, `FFFF=0x0C`, sem alcançar `0x4A8D`, e foram classificadas como `risk` pelo auditor.
+
+As duas capturas registraram o mesmo caminho de interesse: `0x4496` no bloco 267 com `SP=0xDFEE` e topo `0xEB/0x00`, seguido de limpeza em `DD03`, `DD97`, `DDB7`, `DDF7` e `DE0F–DE12`; o limpador `0x8B8B/0x8B93` foi observado com `SP=0xDFD4` e topo `0x00/0x00`. A restrição da faixa de PCs observados não separa os chamadores, pois não altera a execução e ambas as capturas convergem para o mesmo estado.
+
+O relatório está em `build/a0_two_callers_probe_2026-08-30.md`. O próximo passo deve registrar explicitamente o endereço de retorno na entrada de `0x8B62`, usando um marcador de execução ou instrumentação específica das instruções `CALL` em `0x0533` e `0x4569`; não devem ser feitas novas inferências a partir de faixas de trace isoladas nem alterações na ROM.
