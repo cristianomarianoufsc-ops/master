@@ -14,11 +14,13 @@ Também foram criadas ferramentas para analisar bancos, streams, estados, byteco
 
 O próximo agente deve começar por `build/static_script_findings.md`, `build/dialogue_resolution_graph.md`, `build/dialog_handler_candidates.md` e `build/resolved_paged_refs.md`. Em seguida, deve validar a regra exata de `C280` reproduzindo `04CFD/04D16` com os valores de runtime, identificar os streams consumidos por `C223/C238`, montar um mapa de códigos para a fonte japonesa e somente então preparar a fonte latina e o patch.
 
-As ferramentas são scripts Python independentes. O arquivo original da ROM deve ser colocado localmente, fora do Git, com o nome documentado nos próprios scripts ou passado como argumento. Exemplos:
+As ferramentas são scripts Python independentes. O arquivo original da ROM deve ser colocado localmente, fora do Git, com o nome documentado nos próprios scripts ou passado como argumento. Capturas devem ser submetidas ao auditor de falsos positivos antes de serem aceitas como evidência; em loops de espera, `--trace-every N` reduz a saturação sem remover eventos forçados de IRQ, VBlank e controle. Exemplos:
 
 ```bash
 python3 tools/dump_bank_addresses.py /caminho/kujaku_ou_jp_original.sms 6e33 6f47 --banks 0-31
 python3 tools/resolve_paged_refs.py build/bank21.asm --register ffff
+python3 tools/run_sms_capture.py /caminho/kujaku_ou_jp_original.sms --out /tmp/capture.json --scanline-irq --dega-frame-schedule --trace-every 32
+python3 tools/audit_false_positives.py /tmp/capture.json
 python3 tools/extract_dialog_pointer_tables.py /caminho/kujaku_ou_jp_original.sms --bank 22 --table af55 --out build/dialog_pointer_af55.md
 ```
 

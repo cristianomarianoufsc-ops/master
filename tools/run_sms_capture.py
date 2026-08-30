@@ -37,6 +37,8 @@ p.add_argument("--trace-pc-range", type=str, default="0x3400-0x35A0",
                help="inclusive PC range to trace, for example 0x3400-0x35A0")
 p.add_argument("--trace-limit", type=int, default=20000,
                help="maximum number of detailed trace records")
+p.add_argument("--trace-every", type=int, default=1,
+               help="record one matching event every N trace events")
 p.add_argument("--trace-out", type=Path, default=None,
                help="optional JSON file receiving detailed memory/I/O trace")
 p.add_argument("--out", type=Path, required=True)
@@ -70,11 +72,18 @@ except ValueError as exc:
 if trace_start > trace_end or not 0 <= trace_start <= 0xFFFF or not 0 <= trace_end <= 0xFFFF:
     raise SystemExit(f"invalid --trace-pc-range: {a.trace_pc_range!r}")
 trace_records = []
+trace_event_count = 0
 current_run = 0
 
 
 def trace_event(kind, address=None, value=None, force=False):
+    global trace_event_count
+    trace_event_count += 1
+    if a.trace_every < 1:
+        raise SystemExit("--trace-every must be at least 1")
     if len(trace_records) >= a.trace_limit or "cpu" not in globals():
+        return
+    if not force and trace_event_count % a.trace_every != 0:
         return
     pc = cpu.pc & 0xFFFF
     if not force and not (trace_start <= pc <= trace_end):
@@ -343,7 +352,8 @@ report = {
                "scanline": scanline, "hint_counter": hint_counter,
                "pending_irq": pending_irq},
     "trace": {"pc_range": [f"0x{trace_start:04X}", f"0x{trace_end:04X}"],
-              "limit": a.trace_limit, "records": trace_records},
+              "limit": a.trace_limit, "sample_every": a.trace_every,
+              "events_seen": trace_event_count, "records": trace_records},
     "result": result,
     "steps": steps,
     "events": events[-32:],

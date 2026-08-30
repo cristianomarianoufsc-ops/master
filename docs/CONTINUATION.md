@@ -175,3 +175,13 @@ Foi criada `tools/audit_false_positives.py` para auditar relatórios e traces an
 O auditor retorna `status=pass` apenas quando não encontra alertas, `status=review` quando há avisos que exigem análise humana e `status=risk` quando encontra risco crítico; nesse último caso o processo termina com código diferente de zero. O resultado não prova a correção do emulador: ele funciona como barreira contra aceitar evidência incompleta ou confundida com progresso.
 
 Aplicado à captura longa do caminho `0xEF`, o auditor retornou `status=risk` e detectou corretamente `BREAKPOINT_NOT_REACHED` (`PC=0x4074`, alvo `0x4A8D`) e `TRACE_SATURATED` (`500000/500000` registros). Essa captura não deve ser usada como snapshot nem como prova de que o diálogo foi alcançado.
+
+## Avanço atual: captura real e trace amostrado
+
+A ROM japonesa fornecida pelo usuário foi instalada localmente como `input/KujakuOu_Japan.sms` e permanece ignorada pelo Git. O pacote `Dega-1.12.tar.gz` foi mantido somente em `/home/ubuntu/reference/`, também fora do repositório.
+
+A captura-base com `--scanline-irq --dega-frame-schedule` e entrada `FF,FE,FF` não alcançou `0x4A8D`; o auditor classificou-a como `risk` por `BREAKPOINT_NOT_REACHED`. Uma reprodução da janela documentada, mantendo `0xFF` até o bloco 260 e aplicando `0xEF` por 30 blocos, convergiu para `0x406F/0x4073`, com `FFFE=0x95`, `FFFF=0x16`, `C008=0x02` e `C203=0x01`. A auditoria confirmou `BREAKPOINT_NOT_REACHED`, além de `FLAG_STUCK` e `DOMINANT_PC_LOOP`; a captura original também saturava o limite de trace.
+
+Para evitar que loops de espera saturem o trace, `tools/run_sms_capture.py` recebeu `--trace-every N`. A opção registra um evento correspondente a cada N eventos de trace, preservando eventos forçados de IRQ, VBlank e controle. Com `--trace-every 32`, a mesma captura não saturou o trace e confirmou, de forma mais limpa, que `C008` e `C203` permanecem constantes sem escritores observados durante a espera. O auditor continua retornando `risk` exclusivamente porque `0x4A8D` não foi alcançado, e `review` pelos flags presos, loop dominante e entrada variável.
+
+Essa etapa não constitui snapshot válido de `C280`. A conclusão operacional é que o problema atual está na transição de cena/estado que antecede `0x406F`, não na falta de capacidade do trace. O próximo diagnóstico deve correlacionar os escritores estáticos de `C008/C203` encontrados na ROM com o trace dinâmico e investigar por que a rotina paginada de banco 21 não altera esses flags no caminho de entrada `0xEF`.
