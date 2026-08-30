@@ -254,3 +254,9 @@ A nova ferramenta `tools/analyze_scene_flag_lifecycle.py` foi aplicada à captur
 ## Descoberta: consumidores de C203 passam pelo dispatcher de IRQ
 
 A desassemblagem do banco físico 21 confirmou que `0x432F` e `0x4352` implementam os consumidores dos bits 0 e 1 de `C203`, respectivamente, usando também os bits correspondentes de `C204`. Eles não possuem chamadas diretas no banco 21. O handler de IRQ em `0x015D–0x01B4` grava `FFFF=0x82`, chama `0x8000` e só então limpa `C008`; a entrada `0x8000` do banco 2 percorre estruturas de tarefas em `DDxx`. A hipótese operacional atual é que a conclusão da segunda operação depende de uma tarefa/estado em `DDxx` que o capturador ainda não reproduz, e não simplesmente de mais IRQs. Essa conclusão foi obtida sem desbloqueio sintético.
+
+## Descoberta: atividade de tarefas DDxx durante o segundo carregamento
+
+O capturador recebeu `--trace-memory-range`, permitindo registrar leituras e escritas em intervalos como `DD00–DE37` sem ampliar indiscriminadamente o trace de PCs. Foi adicionada também `tools/summarize_ddxx_trace.py` para resumir esses eventos.
+
+Na captura de 800 blocos com a semântica do Dega, foram observados 42 eventos DDxx, incluindo 28 escritas. Durante o caminho do segundo carregamento, no bloco 789, as rotinas `0x855E` e `0x8786` escreveram em `DD64` e `DD66`; outras atualizações ocorreram em `DD07`, `DD32`, `DD6F` e `DDB7`. O dispatcher de IRQ, portanto, está modificando registros de tarefas quando a execução termina em `0x4073`; a hipótese de que a cadeia não é executada foi descartada. O próximo passo é seguir o slot em torno de `DD57–DD76`, correlacionando o bit 7 do registro de tarefa com as chamadas `0x8585/0x85DB`.

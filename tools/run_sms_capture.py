@@ -43,6 +43,8 @@ p.add_argument("--trace-limit", type=int, default=20000,
                help="maximum number of detailed trace records")
 p.add_argument("--trace-every", type=int, default=1,
                help="record one matching event every N trace events")
+p.add_argument("--trace-memory-range", type=str, default=None,
+               help="inclusive memory range to trace, for example 0xDD00-0xDE37")
 p.add_argument("--trace-out", type=Path, default=None,
                help="optional JSON file receiving detailed memory/I/O trace")
 p.add_argument("--out", type=Path, required=True)
@@ -75,6 +77,17 @@ except ValueError as exc:
     raise SystemExit(f"invalid --trace-pc-range: {a.trace_pc_range!r}") from exc
 if trace_start > trace_end or not 0 <= trace_start <= 0xFFFF or not 0 <= trace_end <= 0xFFFF:
     raise SystemExit(f"invalid --trace-pc-range: {a.trace_pc_range!r}")
+trace_memory_start = trace_memory_end = None
+if a.trace_memory_range:
+    try:
+        trace_memory_start, trace_memory_end = [int(item, 0) for item in
+                                                a.trace_memory_range.split("-", 1)]
+    except ValueError as exc:
+        raise SystemExit(f"invalid --trace-memory-range: {a.trace_memory_range!r}") from exc
+    if (trace_memory_start > trace_memory_end or
+            not 0 <= trace_memory_start <= 0xFFFF or
+            not 0 <= trace_memory_end <= 0xFFFF):
+        raise SystemExit(f"invalid --trace-memory-range: {a.trace_memory_range!r}")
 trace_records = []
 trace_event_count = 0
 current_run = 0
@@ -140,7 +153,8 @@ def read_mem(addr):
         ram[ram_index(addr)] = 0
     reads[addr] = reads.get(addr, 0) + 1
     if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
-            0xC200 <= addr <= 0xC251 or addr in mapper):
+            0xC200 <= addr <= 0xC251 or addr in mapper or
+            (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end)):
         read_value = mapper[addr] if addr in mapper else ram[ram_index(addr)]
         trace_event("mem_read", addr, read_value)
     if addr < 0x4000:
@@ -161,7 +175,8 @@ def write_mem(addr, value):
     value &= 0xFF
     writes[addr] = writes.get(addr, 0) + 1
     if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
-            0xC200 <= addr <= 0xC251 or addr in mapper):
+            0xC200 <= addr <= 0xC251 or addr in mapper or
+            (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end)):
         trace_event("mem_write", addr, value,
                     force=addr in (0xC008, 0xC203))
     if addr in mapper:
@@ -371,6 +386,8 @@ report = {
                "scanline": scanline, "hint_counter": hint_counter,
                "pending_irq": pending_irq},
     "trace": {"pc_range": [f"0x{trace_start:04X}", f"0x{trace_end:04X}"],
+              "memory_range": ([f"0x{trace_memory_start:04X}", f"0x{trace_memory_end:04X}"]
+                                if trace_memory_start is not None else None),
               "limit": a.trace_limit, "sample_every": a.trace_every,
               "events_seen": trace_event_count, "records": trace_records},
     "result": result,
