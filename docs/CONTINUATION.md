@@ -270,3 +270,7 @@ O trace focado em `DD57–DD76` mostrou que, após a operação iniciada em `0x4
 A captura estendida para 3.500 blocos confirmou um padrão periódico. Após a primeira conclusão em `0x432F`, as operações seguintes alternam entre `0x4065/0x406A` e `0x403A/0x403F` a cada 262 blocos aproximadamente. As conclusões passam por `0x432F` ou `0x4352`, mas o fluxo retorna ao carregamento e termina em `0x406F`. O problema atual não é uma operação individual permanentemente pendente; trata-se de uma espera/ciclo de cena que não dispara a transição para o diálogo.
 
 O relatório completo está em `build/scene_3500_flag_lifecycle.md`, com o resumo DDxx em `build/scene_3500_ddxx_summary.txt`. O próximo experimento deve sincronizar pulsos de controle com esses ciclos, mantendo a auditoria e sem liberar flags artificialmente.
+
+## Descoberta: pulsos tardios não são amostrados
+
+A matriz de entradas com pulsos iniciados no bloco 1040 confirmou que o jogo não lê `DC/C0` nessa janela: as leituras permaneceram apenas nos blocos 265 e 527, com `0xFF`. Os casos `0xEF` e `0xDF` continuam no caminho `0x406F`; as demais máscaras retornam ao fluxo `0x3536`. O relatório está em `build/timed_input_matrix_1040.md`. Não se deve atribuir efeito causal aos pulsos tardios; o próximo teste deve alterar apenas a janela real de amostragem ou modelar a atualização de entrada por frame no emulador.
