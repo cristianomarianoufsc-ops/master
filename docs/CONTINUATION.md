@@ -290,3 +290,7 @@ O probe determinístico de `C200–C20F` confirmou que a segunda operação em `
 ## Descoberta: bloqueio localizado em 0x406F com FFFF=0x0C
 
 O probe de acessos confirmou que o estado de bloqueio reproduzível começa no bloco 311: `0x406F` lê repetidamente `C203=1` enquanto `FFFF=0x0C`. Não há nova escrita de `C206` nem avanço ao breakpoint `0x4A8D`. O mesmo experimento também confirmou que outros ciclos alcançam `0x432F` e limpam `C203`, portanto o problema agora está restrito à cadeia do pedido associado ao banco `0x0C`/bit 0. O relatório está em `build/c206_block_state.md`; foi adicionado `tools/summarize_memory_accesses.py` para reproduzir a extração.
+
+## Descoberta: tarefa DD57 não é armada no caminho FFFF=0x0C
+
+A comparação direta do dispatcher no caminho bloqueado mostrou que ele executa, mas `DD57` permanece em `0` (escritas nos blocos 41, 46, 267, 277 e 278). No caminho que progride, `DD57` recebe `0x80` no bloco 789 e os handlers da tarefa são processados. O loop em `0x406F` ocorre porque `C203=1` aguarda essa tarefa sem que o bit 7 seja ativado. O diagnóstico está em `build/bank0c_task_block.md`; o resumidor `tools/summarize_memory_accesses.py` permite reproduzir a comparação.
