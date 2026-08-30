@@ -105,3 +105,9 @@ Os testes confirmaram que o vetor de IRQ é alcançado, porém o retorno/coorden
 Foi adicionado `--scanline-irq` ao `tools/run_sms_capture.py`. O modo avança uma linha NTSC por execução nativa (`228` ciclos), marca VBlank na linha 193 e considera H-interrupt conforme os bits dos registradores VDP `Reg[0]` e `Reg[10]`, seguindo a estrutura de `frame.cpp` do Dega.
 
 O teste de 12.000 linhas/execuções compilou e terminou rapidamente, mas ficou em `0x0545` com os registradores VDP ainda zerados e sem alcançar `0x4A8D`. Isso mostra que a cadência não deve ser aplicada desde o reset sem modelar o restante do protocolo de frame; não há snapshot válido nesta etapa. O próximo passo é inicializar o frame/VDP no ponto correto e tratar a espera em `0x0545` por seu contexto, em vez de liberar loops genericamente.
+
+## Correção de diagnóstico: 0545 é atraso, não espera VDP
+
+A disassemblagem de `0x053F–0x054D` confirmou que `0x0545` apenas executa um atraso aninhado (`BC=0x1999`, `B=0x14`) e retorna. O bloqueio aparente observado nessa faixa não era uma espera de hardware. Com o modelo VDP atual, a execução passa por esse atraso e chega ao loop principal em `0x34xx`, com escritas reais em VRAM e troca do banco `FFFF` para `0x84`.
+
+A busca por `CALL 0545` não encontrou chamadas diretas porque a rotina é alcançada por `CALL 053F`/outros caminhos. O breakpoint `0x4A8D` não ocorre no boot inicial: a execução precisa avançar por uma transição de jogo/cena e por entrada de usuário para chegar à inicialização de diálogo. Portanto, o próximo passo não é liberar mais um loop de VDP, mas modelar o estado de entrada/frames ou localizar um ponto de entrada de cena que leve ao código em `0x4A8D`.
