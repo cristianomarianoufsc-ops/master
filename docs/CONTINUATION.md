@@ -260,3 +260,7 @@ A desassemblagem do banco físico 21 confirmou que `0x432F` e `0x4352` implement
 O capturador recebeu `--trace-memory-range`, permitindo registrar leituras e escritas em intervalos como `DD00–DE37` sem ampliar indiscriminadamente o trace de PCs. Foi adicionada também `tools/summarize_ddxx_trace.py` para resumir esses eventos.
 
 Na captura de 800 blocos com a semântica do Dega, foram observados 42 eventos DDxx, incluindo 28 escritas. Durante o caminho do segundo carregamento, no bloco 789, as rotinas `0x855E` e `0x8786` escreveram em `DD64` e `DD66`; outras atualizações ocorreram em `DD07`, `DD32`, `DD6F` e `DDB7`. O dispatcher de IRQ, portanto, está modificando registros de tarefas quando a execução termina em `0x4073`; a hipótese de que a cadeia não é executada foi descartada. O próximo passo é seguir o slot em torno de `DD57–DD76`, correlacionando o bit 7 do registro de tarefa com as chamadas `0x8585/0x85DB`.
+
+## Correção de hipótese: segunda operação também conclui
+
+O trace focado em `DD57–DD76` mostrou que, após a operação iniciada em `0x403A/0x403F` no bloco 789, o dispatcher prepara a tarefa em `DD57–DD66` e processa seus estados pelas rotinas `0x855E`, `0x8786`, `0x8CA6` e relacionadas. No bloco 1051, a rotina `0x432F` limpa `C203`; imediatamente depois, `0x4065/0x406A` inicia outra operação com `C008=2` e `C203=2`. A segunda operação, portanto, não fica permanentemente presa em `0x406C`; a captura anterior apenas terminou antes de sua conclusão. A investigação deve agora acompanhar as operações subsequentes até a transição de diálogo.
