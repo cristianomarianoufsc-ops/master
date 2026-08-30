@@ -264,3 +264,9 @@ Na captura de 800 blocos com a semântica do Dega, foram observados 42 eventos D
 ## Correção de hipótese: segunda operação também conclui
 
 O trace focado em `DD57–DD76` mostrou que, após a operação iniciada em `0x403A/0x403F` no bloco 789, o dispatcher prepara a tarefa em `DD57–DD66` e processa seus estados pelas rotinas `0x855E`, `0x8786`, `0x8CA6` e relacionadas. No bloco 1051, a rotina `0x432F` limpa `C203`; imediatamente depois, `0x4065/0x406A` inicia outra operação com `C008=2` e `C203=2`. A segunda operação, portanto, não fica permanentemente presa em `0x406C`; a captura anterior apenas terminou antes de sua conclusão. A investigação deve agora acompanhar as operações subsequentes até a transição de diálogo.
+
+## Descoberta: ciclo periódico de carregamentos sem transição de diálogo
+
+A captura estendida para 3.500 blocos confirmou um padrão periódico. Após a primeira conclusão em `0x432F`, as operações seguintes alternam entre `0x4065/0x406A` e `0x403A/0x403F` a cada 262 blocos aproximadamente. As conclusões passam por `0x432F` ou `0x4352`, mas o fluxo retorna ao carregamento e termina em `0x406F`. O problema atual não é uma operação individual permanentemente pendente; trata-se de uma espera/ciclo de cena que não dispara a transição para o diálogo.
+
+O relatório completo está em `build/scene_3500_flag_lifecycle.md`, com o resumo DDxx em `build/scene_3500_ddxx_summary.txt`. O próximo experimento deve sincronizar pulsos de controle com esses ciclos, mantendo a auditoria e sem liberar flags artificialmente.
