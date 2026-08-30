@@ -47,6 +47,8 @@ p.add_argument("--trace-memory-range", type=str, default=None,
                help="inclusive memory range to trace, for example 0xDD00-0xDE37")
 p.add_argument("--trace-out", type=Path, default=None,
                help="optional JSON file receiving detailed memory/I/O trace")
+p.add_argument("--trace-forced-addresses", type=str, default="0xC008,0xC203",
+               help="comma-separated addresses whose events bypass PC/rate filtering")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
 
@@ -88,6 +90,11 @@ if a.trace_memory_range:
             not 0 <= trace_memory_start <= 0xFFFF or
             not 0 <= trace_memory_end <= 0xFFFF):
         raise SystemExit(f"invalid --trace-memory-range: {a.trace_memory_range!r}")
+try:
+    trace_forced_addresses = {int(item.strip(), 0) for item in
+                              a.trace_forced_addresses.split(",") if item.strip()}
+except ValueError as exc:
+    raise SystemExit(f"invalid --trace-forced-addresses: {a.trace_forced_addresses!r}") from exc
 trace_records = []
 trace_event_count = 0
 current_run = 0
@@ -178,7 +185,7 @@ def write_mem(addr, value):
             0xC200 <= addr <= 0xC251 or addr in mapper or
             (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end)):
         trace_event("mem_write", addr, value,
-                    force=addr in (0xC008, 0xC203))
+                    force=addr in trace_forced_addresses)
     if addr in mapper:
         mapper[addr] = value
     elif 0xC000 <= addr <= 0xFFFF:
@@ -388,7 +395,7 @@ report = {
     "trace": {"pc_range": [f"0x{trace_start:04X}", f"0x{trace_end:04X}"],
               "memory_range": ([f"0x{trace_memory_start:04X}", f"0x{trace_memory_end:04X}"]
                                 if trace_memory_start is not None else None),
-              "limit": a.trace_limit, "sample_every": a.trace_every,
+              "limit": a.trace_limit, "sample_every": a.trace_every, "forced_addresses": [f"0x{x:04X}" for x in sorted(trace_forced_addresses)],
               "events_seen": trace_event_count, "records": trace_records},
     "result": result,
     "steps": steps,

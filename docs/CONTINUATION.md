@@ -210,6 +210,12 @@ O trace não saturado registrou atividade nos PCs `0x4017`, `0x4065`, `0x406A`, 
 
 A partir desta etapa, não serão feitos novos desbloqueios sintéticos como tentativa de alcançar `0x4A8D`. A investigação deve se concentrar na causa do carregamento pendente: a rotina em `0x40F5–0x40FA` inicia a operação, o loop em `0x406C` aguarda ambos os flags zerarem, e as rotinas que deveriam consumir o estado precisam ser reproduzidas na ordem correta do jogo/emulador.
 
+## Ferramenta específica para o ciclo da tarefa A0
+
+Foi adicionada `tools/analyze_a0_task_lifecycle.py`, que resume eventos de armamento, limpeza e atividade do grupo `DDF7–DE16`, além de `C203`, `DD03` e `DD97`, a partir de uma captura JSON. A ferramenta é somente observacional: não libera esperas, não altera RAM e não interpreta a ausência do breakpoint como sucesso. O capturador e `tools/run_timed_capture.py` também aceitam `--trace-forced-addresses`, permitindo retirar `C008` do conjunto de eventos forçados e evitar que o loop diagnóstico de boot sature um trace focalizado.
+
+A validação foi feita com a ROM local, sem alterar a ROM e sem publicar artefatos locais. Com `--trace-memory-range 0xDDF7-0xDE16`, `--trace-pc-range 0x8000-0x8D00` e `--trace-forced-addresses 0xC203`, a captura de 1.100 blocos terminou em `0x4070` e não alcançou `0x4A8D`, como esperado para uma evidência ainda não conclusiva. O trace focalizado registrou no bloco 265 a cópia da estrutura para `DDF7–DE06`, incluindo `DDF7=0xA8`; no bloco 267, `0x8B8B–0x8B93` escreveu `DDF7=0` e zerou `DE0F–DE12`; no bloco 285, `0x40FA` iniciou nova operação com `C203=1`. Isso reproduz e detalha a desmontagem prematura já observada, sem usar desbloqueio sintético.
+
 ## Correção incremental: limpeza do latch de IRQ pelo VDP
 
 A comparação com `mast/mem.cpp` do Dega revelou que leituras do status VDP (`BF`) e escritas de controle VDP limpam o latch de interrupção. O capturador foi ajustado para limpar `pending_irq` nesses dois pontos, mantendo a solicitação de IRQ separada da aceitação pelo Z80.
