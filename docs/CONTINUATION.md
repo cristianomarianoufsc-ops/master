@@ -488,3 +488,9 @@ A ferramenta `align_z80_signatures.py` foi aplicada à rotina americana equivale
 O bloco de limpeza/construção de `C280` também alinhou: o início americano em `0x4A81` corresponde ao japonês em `0x4A73`, com 7 janelas únicas de 8 instruções. A busca literal localiza o ponto japonês `0x4A8D` em torno de `0x4A9B` na americana, indicando que o breakpoint equivalente americano é `0x4A9B`, não `0x4A8D`.
 
 Os relatórios estão em `build/z80_04cfd_alignment_usa_japan.json` e `build/z80_c280_alignment_usa_japan.json`. A versão americana agora pode ser usada para estudar o fluxo homólogo no breakpoint `0x4A9B` e identificar quais valores de estado precedem a resolução de C280, sem confundir offsets entre versões.
+
+## Teste do breakpoint homólogo na ROM americana
+
+O capturador foi executado contra `SpellCaster(USA,Europe).sms` usando o breakpoint regionalmente correto `0x4A9B` e a janela temporizada de entrada documentada. A execução não alcançou o alvo e terminou em `0x051F`, com `FFFF=0x8C`/`0x84` dependendo da configuração e campos `C022/C025–C028/C205/C215/C251/C280/C281` zerados. Isso não é um snapshot válido.
+
+A causa operacional é que `tools/run_sms_capture.py` ainda contém pontos de espera e fluxo específicos derivados da ROM japonesa; ele não pode ser usado diretamente na americana apenas trocando o endereço do breakpoint. O valor da ROM americana nesta etapa é estrutural: os alinhamentos Z80 confirmam que `0x4A9B` corresponde ao `0x4A8D` japonês e que `04CFD`/`04BBD` são homólogos. O próximo passo deve separar a configuração regional do capturador ou executar um harness com pontos de espera descobertos na versão americana, sem transportar os offsets japoneses.
