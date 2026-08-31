@@ -398,3 +398,9 @@ Foi criada `tools/compare_a0_call_windows.py` para comparar traces estreitos e f
 O caminho fixo (`0x0533 → 0x0536`) chega à entrada com `A=0x82`, `F=0x80`, `DE=0x8900`, `HL=0xC73F` e `SP=0xDFEC` antes do empilhamento. O caminho paginado (`0x4569 → 0x456C`) chega com `A=0x82`, `F=0x10`, `DE=0x0003`, `HL=0x4547` e o mesmo SP. O caminho fixo passa por `0x0526–0x0534`, lê `C73E`, escreve `C73F` e atualiza `DE`; o caminho paginado passa por `0x4564–0x456A` e é precedido por escritas repetidas de `0x03` em `C008` no loop `0x04E4`.
 
 A diferença não está nos campos DDxx/C203 na entrada de `0x8B62`, que permanecem zerados, mas nos parâmetros e flags entregues à rotina. O próximo probe deve acompanhar como `0x8B62` consome `HL=0x4547`, `DE=0x0003`, `F=0x10` e `C008=0x03`, comparando com `HL=0xC73F`, `DE=0x8900`, `F=0x80` do caminho fixo. O relatório está em `build/a0_causal_window_probe_2026-08-30.md`.
+
+## Dependências internas de 0x8B62
+
+Foi criada `tools/analyze_a0_routine_dependencies.py` e foram executadas capturas cobrindo `0x8B60–0x8BD0`. Os caminhos fixo (`0x0536`) e paginado (`0x456C`) percorrem o mesmo conjunto de PCs, de `0x8B62` a `0x8B98`, e realizam o mesmo conjunto de leituras `DD03–DD0C` e escritas nos campos DDxx monitorados. A diferença permanece na entrada: o caminho fixo chega com `F=0x80`, `DE=0x8900`, `HL=0xC73F`; o paginado chega com `F=0x10`, `DE=0x0003`, `HL=0x4547`.
+
+A rotina não mostrou, nesta janela, um ramo interno diferente selecionado pelos campos DDxx. A hipótese prioritária agora é que a condição relevante esteja antes do CALL ou nos dados apontados por DE/HL. O próximo probe deve comparar os bytes lidos a partir de `HL=0xC73F` versus `HL=0x4547` e `DE=0x8900` versus `DE=0x0003`, registrando também flags depois de cada leitura. O relatório está em `build/a0_routine_dependency_probe_2026-08-30.md`.
