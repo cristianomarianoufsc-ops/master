@@ -512,3 +512,11 @@ A cópia traduzida só deve ser gerada depois de validar fontes, ponteiros, limi
 O extrator `tools/extract_direct_text_sources.py` foi corrigido para reconhecer o formato atual do disassembler (`0xc223`/`0xc238`) além do formato legado. Executado nas duas ROMs, ele encontrou seis candidatos diretos em cada banco 21. Os seis streams são byte a byte idênticos entre as versões, com deslocamentos Japão–EUA de `+0x0A` no primeiro e `+0x2B` nos demais: `0x542A→0x5434`, `0x5A2D→0x5A58`, `0x5F1A→0x5F45`, `0x61E8→0x6213`, `0x61F7→0x6222` e `0x62DF→0x630A`.
 
 Isso valida o extrator e fornece âncoras precisas para o alinhamento. Esses seis candidatos ainda não são o diálogo principal; os streams narrativos são carregados por handlers paginados e devem ser resolvidos acompanhando `05C16`, `C206`, `C223` e `C238` em runtime. O relatório está em `build/usa_japan_direct_text_comparison.md`, com os dumps em `build/usa_direct_text_sources.md` e `build/japan_direct_text_sources.md`.
+
+## Mapa inicial dos resolvedores narrativos
+
+A ferramenta `tools/extract_handler_windows.py` foi criada para extrair janelas do disassembly atual ao redor das chamadas que resolvem ponteiros de diálogo. A primeira execução revelou uma diferença importante: a ROM japonesa chama o resolvedor em `0x5C16`, enquanto a americana usa o resolvedor homólogo em `0x5BEB`. O extrator foi ajustado para reconhecer ambos.
+
+Foram encontrados 15 candidatos japoneses e 15 candidatos americanos no banco 21. Isso confirma que o conjunto de handlers narrativos é estruturalmente paralelo, mas não é seguro procurar somente pelo endereço japonês. Os relatórios estão em `build/japan_handler_windows.md` e `build/usa_handler_windows.md`.
+
+Os candidatos americanos incluem chamadas que gravam `C223/C238` e chamam `0x5BEB`, enquanto os japoneses fazem o equivalente com `0x5C16`. O próximo passo é alinhar esses 15 candidatos por fingerprints Z80 e extrair os ponteiros de origem (`DE/HL`) de cada handler, começando pelos pares `0x5C4F↔0x5C24` e `0x5D22↔0x5C4D`.
