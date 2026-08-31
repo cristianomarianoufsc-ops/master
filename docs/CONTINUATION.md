@@ -464,3 +464,11 @@ Conclusão: a ROM americana torna a engenharia reversa significativamente mais f
 Foi criada `tools/align_rom_versions.py` para comparar a ROM americana de referência com a japonesa sem assumir offsets idênticos. A ferramenta procura assinaturas binárias locais por banco de 16 KiB e, se necessário, globalmente; informa hits, delta de offsets, banco físico, janela de CPU e unicidade. Também lista sequências ASCII da ROM de referência para transformar mensagens inglesas em âncoras de alinhamento.
 
 A ferramenta foi validada com a ROM americana contra si mesma usando assinaturas em `0x46500` e `0x4A81`; os matches foram únicos e os deltas foram zero. Quando a ROM japonesa for fornecida novamente, os próximos testes devem usar assinaturas de rotinas estáveis e tabelas, não apenas texto, pois traduções e reorganizações podem alterar as sequências ASCII.
+
+## Resultado quantitativo: ROM japonesa versus americana
+
+A ROM japonesa recém-recebida foi comparada byte a byte com `SpellCaster(USA,Europe)`. Ambas têm 524288 bytes e 32 bancos. O resultado é favorável: os bancos 6–11, 13, 15–16, 22, 25–27 e 29 são 100% idênticos; o banco 23 é 99,7% idêntico e o banco 5 é 96,6% idêntico. Isso fornece uma base direta para validar código comum, mapper, VDP e rotinas compartilhadas.
+
+As diferenças estão concentradas nos bancos regionais/localizados. O banco 21 tem somente 16,1% de igualdade byte a byte, explicando por que assinaturas literais de 32 bytes não alinharam as tabelas de diálogo. Ainda assim, as rotinas homólogas foram identificadas: a leitura americana equivalente a `04BBD` está em `0x4BCB` e a equivalente a `04CFD` em `0x4D0B`, contra `0x4BBD` e `0x4CFD` na japonesa. O relatório detalhado está em `build/usa_japan_comparison.md`.
+
+Conclusão operacional: a ROM americana é uma referência muito valiosa e torna o projeto mais fácil, mas o alinhamento do banco 21 deve usar assinaturas de opcode/controle de fluxo com operandos mascarados, não comparação literal. Nenhuma ROM foi modificada.
