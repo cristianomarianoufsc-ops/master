@@ -444,3 +444,9 @@ Isso aponta para uma condição de ordenação temporal entre a conclusão da m�
 A desmontagem de `0x1809–0x185F` corrigiu a interpretação temporal anterior: `0x1809–0x180C` limpa `C080`; `0x180E` lê `C112`; se `C112=2` e os contadores `C081/C082` mudaram, `0x181C–0x181F` reativa `C080=1`. O scheduler `0x06CE` continua retornando porque encontra `C0A0=0` após a conclusão da máquina, e não porque `0x180E` escreva `C080`.
 
 A próxima captura deve correlacionar quando `0x06CE` é chamado em relação aos quatro ciclos intermediários e ao handler `0x1809–0x181F`, sem liberar artificialmente `C0A0`.
+
+## Xrefs do scheduler e do handler VDP
+
+A nova ferramenta `tools/find_z80_call_xrefs.py` localizou o xref fixo `0x0DA6`, que chama `0x06CE` somente quando `C080=0` (`0x0D9C–0x0DA0`). O handler em `0x0179` chama separadamente `0x1809`; esse handler limpa `C080` e pode reativá-lo conforme `C112` e `C081/C082`.
+
+A cadeia correta é, portanto, `0x0179 → 0x1809` para o estado VDP, seguida de `0x0D9C → 0x0DA6 → 0x06CE` quando o gate `C080` está livre. O scheduler ainda possui sua própria guarda: retorna se `C0A0=0` e só então transfere `C0E0` para `C000`. A hipótese de simples atraso de IRQ foi refinada para uma interação entre as guardas explícitas `C080` e `C0A0`. O relatório está em `build/a0_scheduler_xref_probe_2026-08-30.md`.
