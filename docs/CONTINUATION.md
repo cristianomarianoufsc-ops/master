@@ -596,3 +596,11 @@ O pacote `ROMSEEMULADOR.tar.gz` fornecido pelo usuário foi preservado em `input
 Foi adicionada `tools/list_ascii_runs.py` para listar sequências ASCII com offsets físicos, banco e janela de CPU. A comparação confirmou as âncoras de menu `NEW GAME`, `PASSWORD!` e `PUSH START BUTTON` nas duas versões, com deslocamento regional (`0x45FB/0x4654` na americana e `0x4670/0x46EF` na japonesa). Essas sequências são úteis para alinhamento, mas não devem ser tratadas como prova de que os streams narrativos foram localizados: os diálogos principais continuam dependentes da resolução paginada e da tabela de glyphs.
 
 O alinhamento estrutural Z80 da rotina equivalente em `0x4BCB`/`0x4BBD` produziu 53 janelas, 49 únicas, confirmando a correspondência de código sem assumir offsets idênticos. A busca literal de 32 bytes não encontrou correspondência, portanto a estratégia correta permanece fingerprint de opcode/tamanho e validação dinâmica.
+
+## Probe do gate `0x48D5–0x4970`
+
+Foi criado `tools/analyze_dialog_state_gate.py` para resumir os PCs do gate de cena, estados C004/C005/C020/C02B/C26C e o resultado do auditor. A captura japonesa com semântica de I/O do Dega, frame por scanline e entrada na janela causal terminou em `0x406F` após 3500 blocos; o auditor retornou `risk` por `BREAKPOINT_NOT_REACHED`.
+
+O trace preservou 7.871 passagens por `0x4937`, 26 chamadas de `0x4939`, uma passagem por `0x494A`, uma por `0x4970` e uma chamada a `0x4988`. Isso confirma que o caminho alternativo de `0x4970` chega a ser visitado, mas não se torna uma transição estável para `0x4A8D`. As escritas observadas em `C020` ocorreram em `0x4414`, `0x4911` e `0x45E4`; não houve escritas observadas em `C004`, `C005`, `C02B` ou `C26C` nesta janela focalizada. A captura não foi aceita como snapshot e nenhum valor foi forçado.
+
+A desassemblagem mostra que `0x4937` carrega dados para VRAM por `0x0226`, zera `C26C`, aguarda `0x406C` e retorna ao scheduler; o ramo `0x4970` só prossegue para o resolvedor em `0x4B94` quando as guardas de `C005` e `C004` permitem. O próximo probe deve preservar esses estados fora do limite focalizado e correlacionar a entrada em `0x48D5` com as escritas do scheduler/VDP, sem tratar a simples passagem por `0x4970` como diálogo alcançado.
