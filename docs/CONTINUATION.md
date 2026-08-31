@@ -554,3 +554,13 @@ Os templates do pacote incluem tentativas preliminares como `004739: INICIAR`, m
 Foi executada `tools/transform_lad0c_05b3e.py` nas ROMs japonesa e americana, com banco físico 13, origem `AD0C`, stride `0x10` e 64 glifos. Cada saída tem 8192 bytes e ambas possuem o mesmo SHA-256: `ee4b13597f6f23eb3dfd3bb462c95d5ef1c79c170cbd55b2b3a564351b9a872a`. A fonte/grupo de glifos dessa etapa é, portanto, idêntico nas duas versões; a tradução deve alterar códigos/streams, não essa fonte.
 
 Foram gerados `build/japan_glyph_map_05b3e.png` e `build/usa_glyph_map_05b3e.png`, mapas visuais 8x16 de 64 glifos. O relatório está em `build/glyph_map_05b3e_report.md`. A próxima tarefa é transformar os valores não nulos de `C280` em uma tabela código→índice de glifo e cruzá-la com os streams finais.
+
+## Mapa runtime de C280 e cruzamento com streams
+
+A ROM japonesa fornecida localmente foi colocada em `input/kujaku_ou_jp_original.sms`, diretório ignorado pelo Git. O código-fonte do Dega 1.12 foi extraído apenas como referência em `/home/ubuntu/reference/dega-1.12`; nenhum binário ou ROM foi incorporado ao repositório.
+
+O capturador `tools/run_sms_capture.py` passou a registrar a região completa `C280–C37F` (256 bytes), além da lista de códigos não nulos. A execução com `--scanline-irq --dega-frame-schedule --dega-io-semantics`, por 3500 blocos, terminou em `PC=0x406F` com `FFFE=0x95`, `FFFF=0x82` e `result=step_limit`, sem alcançar o breakpoint `0x4A8D`. Ainda assim, a captura produziu 20 entradas não nulas de C280: `40–4F`, `89`, `A9`, `C9` e `E9`, todas com valor `0x01`.
+
+Foi criada `tools/build_runtime_glyph_map.py`, que converte a captura em um mapa auditável código→glifo e cruza os códigos aceitos com os 260 streams do relatório `build/japan_dialog_streams.json`. O resultado está em `build/runtime_c280_glyph_map.md`: os códigos são usados como o próprio índice de glifo pelo loop de texto, com offsets `code*0x10` na origem `AD0C` do banco 13 e `code*0x80` após a transformação modelada de `05B3E`. O cruzamento encontrou 2189 ocorrências de códigos aceitos.
+
+Este resultado é uma fotografia do caminho de execução atual, não o mapa final do jogo. A execução ainda não entrou no fluxo narrativo nem alcançou `0x4A8D`; portanto, os streams continuam sendo referências estruturais e as contagens não comprovam texto narrativo. O próximo passo seguro é obter uma captura que arme a transição de cena/dialogue, ou integrar um snapshot/trace real nesse ponto, antes de preparar qualquer patch.

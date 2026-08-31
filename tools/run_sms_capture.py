@@ -447,6 +447,10 @@ interesting = {f"0x{x:04X}": read_mem(x) for x in
                [0xC020, 0xC021, 0xC022, 0xC025, 0xC026, 0xC027,
                 0xC028, 0xC030, 0xC032, 0xC205, 0xC215, 0xC238,
                 0xC251, 0xC280, 0xC281]}
+# C280 is a 256-entry runtime acceptance/translation table, not a single byte.
+# Capture the complete region so a successful runtime trace can be converted
+# directly into an auditable code-to-glyph map without re-running the CPU.
+c280 = [read_mem(0xC280 + code) for code in range(0x100)]
 report = {
     "rom_size": len(rom),
     "banks": len(banks),
@@ -478,6 +482,12 @@ report = {
             "regs": list(vdp["regs"]), "vram_nonzero": sum(x != 0 for x in vram),
             "cram_nonzero": sum(x != 0 for x in cram)},
     "interesting_ram": interesting,
+    "c280": {
+        "base": "0xC280",
+        "values": c280,
+        "nonzero_count": sum(value != 0 for value in c280),
+        "accepted_codes": [code for code, value in enumerate(c280) if value],
+    },
     "nonzero_ram": snapshot,
     "read_counts": {f"0x{k:04X}": v for k, v in sorted(reads.items())
                      if 0xC000 <= k <= 0xDFFF},
