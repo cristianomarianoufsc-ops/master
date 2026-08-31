@@ -45,6 +45,8 @@ p.add_argument("--trace-every", type=int, default=1,
                help="record one matching event every N trace events")
 p.add_argument("--trace-memory-range", type=str, default=None,
                help="inclusive memory range to trace, for example 0xDD00-0xDE37")
+p.add_argument("--trace-memory-pcs", type=str, default=None,
+               help="inclusive PC range whose all memory operands are recorded")
 p.add_argument("--trace-out", type=Path, default=None,
                help="optional JSON file receiving detailed memory/I/O trace")
 p.add_argument("--trace-forced-addresses", type=str, default="0xC008,0xC203",
@@ -94,6 +96,17 @@ if a.trace_memory_range:
             not 0 <= trace_memory_start <= 0xFFFF or
             not 0 <= trace_memory_end <= 0xFFFF):
         raise SystemExit(f"invalid --trace-memory-range: {a.trace_memory_range!r}")
+trace_memory_pc_start = trace_memory_pc_end = None
+if a.trace_memory_pcs:
+    try:
+        trace_memory_pc_start, trace_memory_pc_end = [int(item, 0) for item in
+                                                      a.trace_memory_pcs.split("-", 1)]
+    except ValueError as exc:
+        raise SystemExit(f"invalid --trace-memory-pcs: {a.trace_memory_pcs!r}") from exc
+    if (trace_memory_pc_start > trace_memory_pc_end or
+            not 0 <= trace_memory_pc_start <= 0xFFFF or
+            not 0 <= trace_memory_pc_end <= 0xFFFF):
+        raise SystemExit(f"invalid --trace-memory-pcs: {a.trace_memory_pcs!r}")
 try:
     trace_forced_addresses = {int(item.strip(), 0) for item in
                               a.trace_forced_addresses.split(",") if item.strip()}
@@ -201,8 +214,21 @@ def read_mem(addr):
     reads[addr] = reads.get(addr, 0) + 1
     if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
             0xC200 <= addr <= 0xC251 or addr in mapper or
-            (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end)):
-        read_value = mapper[addr] if addr in mapper else ram[ram_index(addr)]
+            (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end) or
+            (trace_memory_pc_start is not None and 'cpu' in globals() and
+             trace_memory_pc_start <= cpu.pc <= trace_memory_pc_end)):
+        if addr in mapper:
+            read_value = mapper[addr]
+        elif addr >= 0xC000:
+            read_value = ram[ram_index(addr)]
+        elif addr < 0x4000:
+            read_value = banks[0][addr]
+        elif addr < 0x8000:
+            bank = mapper[0xFFFE] & 0x1F
+            read_value = banks[bank % len(banks)][addr - 0x4000]
+        else:
+            bank = mapper[0xFFFF] & 0x1F
+            read_value = banks[bank % len(banks)][addr - 0x8000]
         trace_event("mem_read", addr, read_value)
     if addr < 0x4000:
         return banks[0][addr]
@@ -223,7 +249,9 @@ def write_mem(addr, value):
     writes[addr] = writes.get(addr, 0) + 1
     if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
             0xC200 <= addr <= 0xC251 or addr in mapper or
-            (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end)):
+            (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end) or
+            (trace_memory_pc_start is not None and 'cpu' in globals() and
+             trace_memory_pc_start <= cpu.pc <= trace_memory_pc_end)):
         trace_event("mem_write", addr, value,
                     force=addr in trace_forced_addresses)
     if addr in mapper:

@@ -404,3 +404,11 @@ A diferença não está nos campos DDxx/C203 na entrada de `0x8B62`, que permane
 Foi criada `tools/analyze_a0_routine_dependencies.py` e foram executadas capturas cobrindo `0x8B60–0x8BD0`. Os caminhos fixo (`0x0536`) e paginado (`0x456C`) percorrem o mesmo conjunto de PCs, de `0x8B62` a `0x8B98`, e realizam o mesmo conjunto de leituras `DD03–DD0C` e escritas nos campos DDxx monitorados. A diferença permanece na entrada: o caminho fixo chega com `F=0x80`, `DE=0x8900`, `HL=0xC73F`; o paginado chega com `F=0x10`, `DE=0x0003`, `HL=0x4547`.
 
 A rotina não mostrou, nesta janela, um ramo interno diferente selecionado pelos campos DDxx. A hipótese prioritária agora é que a condição relevante esteja antes do CALL ou nos dados apontados por DE/HL. O próximo probe deve comparar os bytes lidos a partir de `HL=0xC73F` versus `HL=0x4547` e `DE=0x8900` versus `DE=0x0003`, registrando também flags depois de cada leitura. O relatório está em `build/a0_routine_dependency_probe_2026-08-30.md`.
+
+## Dependência de operandos dentro de 0x8B62
+
+Foi adicionada a opção `--trace-memory-pcs`, que força o registro de toda leitura/escrita enquanto o PC está em uma faixa escolhida, e o wrapper temporizado passou a encaminhá-la corretamente. O probe em `0x8B62–0x8BD0` registrou cinco entradas, quatro pelo retorno `0x0536` e uma pelo retorno `0x456C`.
+
+Dentro da rotina, os dois contextos apresentam o mesmo conjunto de fetches de opcode `0x8B62–0x8B98`, leituras `DD03–DD0C` e escritas DDxx, sem leituras de dados nos endereços apontados pelos valores de HL ou DE (`C73F/4547` e `8900/0003`). A hipótese de dereferência direta de HL/DE não é sustentada. Esses registradores parecem ser valores de estado/parâmetros, enquanto DDxx é a estrutura de destino.
+
+O próximo passo deve ser a desmontagem semântica de `0x8B62–0x8B98`, correlacionando opcodes, efeitos nas flags e instruções que escrevem DDxx. Não é necessário criar outra ferramenta de captura neste ciclo. O relatório está em `build/a0_operand_dependency_probe_2026-08-30.md`.

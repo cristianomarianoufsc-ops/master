@@ -14,10 +14,11 @@ p.add_argument("--press-start", type=int, default=260)
 p.add_argument("--press-runs", type=int, default=30)
 p.add_argument("--value", type=lambda x: int(x, 0), default=0x10)
 p.add_argument("--default", type=lambda x: int(x, 0), default=0x00)
-p.add_argument("--trace-memory-range", default=None)
 p.add_argument("--trace-pc-range", default="0x0000-0x8D00")
-p.add_argument("--trace-every", type=int, default=32)
 p.add_argument("--trace-limit", type=int, default=150000)
+p.add_argument("--trace-every", type=int, default=32)
+p.add_argument("--trace-memory-range", default=None)
+p.add_argument("--trace-memory-pcs", default=None)
 p.add_argument("--trace-forced-addresses", default="0xC008,0xC203")
 p.add_argument("--trace-exec-range", default=None)
 p.add_argument("--trace-call-targets", default="0x8B62")
@@ -40,6 +41,8 @@ command = [sys.executable, str(Path(__file__).with_name("run_sms_capture.py")),
            "--out", str(a.out)]
 if a.trace_exec_range:
     command += ["--trace-exec-range", a.trace_exec_range]
+if a.trace_memory_pcs:
+    command += ["--trace-memory-pcs", a.trace_memory_pcs]
 if a.dega_io_semantics:
     command.append("--dega-io-semantics")
 if a.trace_memory_range:
