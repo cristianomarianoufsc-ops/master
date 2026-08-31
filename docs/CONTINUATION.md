@@ -636,3 +636,11 @@ Uma execução de 5000 blocos foi repetida com trace mínimo, `--trace-every 128
 O ciclo de `C203` foi observado repetidamente: as rotinas `0x432F` e `0x4352` continuam limpando o estado, enquanto `0x406A` e `0x403F` rearmam operações. Além da escrita inicial `C206=0x80` em `0x4146`, apareceu uma escrita posterior `C206=0x82` e `C207=0x80` em `0x5275`, no bloco 4981. `C223`, `C238`, `C205`, `C215` e `C251` permaneceram apenas com as inicializações zeradas; o breakpoint `0x4A8D` não foi alcançado.
 
 O auditor classificou o relatório como `risk` somente por `BREAKPOINT_NOT_REACHED`, loop dominante e entrada variável. A ausência de saturação torna esta evidência mais confiável para o ciclo de estado, mas não permite declarar diálogo ou snapshot de `C280`. O próximo probe deve acompanhar o banco e a rotina em torno de `0x5275`, correlacionando a nova escrita de `C206/C207` com a entrada do dispatcher e com a futura criação de `C223/C238`.
+
+## Descoberta: 0x5275 prepara, mas não constrói o diálogo
+
+A desassemblagem da rotina em `0x5270–0x5292`, alcançada no bloco 4981 com `C206=0x82` e `C207=0x80`, mostrou que `0x5275` grava `C022` a partir do byte apontado por HL, limpa `C280–C2BF` e inicializa `C2C0–C2CF` com `1`. Portanto, essa rotina é uma preparação de estado/objeto e não a construção final da tabela de glyphs.
+
+A captura dedicada confirmou uma passagem completa por `0x5270–0x5292`, com `C022=1`, quatro eventos de limpeza em `C280` e quinze em `C281`/região de inicialização, mas não houve entrada em `0x4A73` ou `0x4A8D`. O auditor manteve `status=risk` por `BREAKPOINT_NOT_REACHED`; nenhum snapshot foi aceito. A distinção é importante: `C206/C207` não nulos indicam progresso no dispatcher, mas não significam que o diálogo foi resolvido.
+
+O próximo passo é seguir o retorno de `0x5270` e o consumidor posterior de `C022`, identificando qual condição deveria selecionar a rotina `0x4A73` que chama `0x4BBD` para preencher `C022/C025–C028`, sem forçar a tabela C280.
