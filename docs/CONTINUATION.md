@@ -548,3 +548,9 @@ Foi recebido o pacote `ROMPROJECT.tar.gz` e inspecionado somente quanto às ferr
 A ideia de agrupamento de ponteiros de `extrair_textos_ponteiros.py` é útil, mas já foi substituída no projeto por `extract_dialog_streams.py`, que respeita bancos SMS, terminadores `FF` e classificação de bytecode. `extract_japanese_text.py` pode servir como triagem, mas não como decodificador: os resultados corrompidos confirmam que o jogo usa um código de glifo próprio ou uma camada de transformação. `injetar_traducao_v2.py` tem uma rotina de checksum potencialmente reaproveitável, porém seu injetor é inseguro porque assume Shift-JIS, procura ponteiros em faixas amplas e não conhece os handlers paginados.
 
 Os templates do pacote incluem tentativas preliminares como `004739: INICIAR`, mas não foram tratados como mapa validado. Nenhuma ferramenta de injeção, ROM, emulador ou objeto compilado foi incorporado. O relatório está em `build/zed_tools_audit.md`. O próximo passo permanece o mapeamento do código de glifos e dos streams finais `C223/C238`; só depois deve ser implementado o injetor seguro e a cópia privada traduzida.
+
+## Confirmação da fonte compartilhada após 05B3E
+
+Foi executada `tools/transform_lad0c_05b3e.py` nas ROMs japonesa e americana, com banco físico 13, origem `AD0C`, stride `0x10` e 64 glifos. Cada saída tem 8192 bytes e ambas possuem o mesmo SHA-256: `ee4b13597f6f23eb3dfd3bb462c95d5ef1c79c170cbd55b2b3a564351b9a872a`. A fonte/grupo de glifos dessa etapa é, portanto, idêntico nas duas versões; a tradução deve alterar códigos/streams, não essa fonte.
+
+Foram gerados `build/japan_glyph_map_05b3e.png` e `build/usa_glyph_map_05b3e.png`, mapas visuais 8x16 de 64 glifos. O relatório está em `build/glyph_map_05b3e_report.md`. A próxima tarefa é transformar os valores não nulos de `C280` em uma tabela código→índice de glifo e cruzá-la com os streams finais.
