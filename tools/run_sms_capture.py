@@ -227,8 +227,8 @@ def read_mem(addr):
             'cpu' in globals() and cpu.pc in vdp_wait_pcs):
         ram[ram_index(addr)] = 0
     reads[addr] = reads.get(addr, 0) + 1
-    if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
-            0xC200 <= addr <= 0xC251 or addr in mapper or
+    if (addr == 0xC008 or addr in {0xC004, 0xC005, 0xC02B, 0xC26C} or
+            0xC020 <= addr <= 0xC030 or 0xC200 <= addr <= 0xC251 or addr in mapper or
             (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end) or
             (trace_memory_pc_start is not None and 'cpu' in globals() and
              trace_memory_pc_start <= cpu.pc <= trace_memory_pc_end)):
@@ -270,8 +270,8 @@ def write_mem(addr, value):
             "previous": ram[ram_index(addr)] if addr >= 0xC000 else None,
             "mapper": {f"0x{k:04X}": v for k, v in mapper.items()},
         })
-    if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
-            0xC200 <= addr <= 0xC251 or addr in mapper or
+    if (addr == 0xC008 or addr in {0xC004, 0xC005, 0xC02B, 0xC26C} or
+            0xC020 <= addr <= 0xC030 or 0xC200 <= addr <= 0xC251 or addr in mapper or
             (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end) or
             (trace_memory_pc_start is not None and 'cpu' in globals() and
              trace_memory_pc_start <= cpu.pc <= trace_memory_pc_end)):

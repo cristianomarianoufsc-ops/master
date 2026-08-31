@@ -604,3 +604,11 @@ Foi criado `tools/analyze_dialog_state_gate.py` para resumir os PCs do gate de c
 O trace preservou 7.871 passagens por `0x4937`, 26 chamadas de `0x4939`, uma passagem por `0x494A`, uma por `0x4970` e uma chamada a `0x4988`. Isso confirma que o caminho alternativo de `0x4970` chega a ser visitado, mas não se torna uma transição estável para `0x4A8D`. As escritas observadas em `C020` ocorreram em `0x4414`, `0x4911` e `0x45E4`; não houve escritas observadas em `C004`, `C005`, `C02B` ou `C26C` nesta janela focalizada. A captura não foi aceita como snapshot e nenhum valor foi forçado.
 
 A desassemblagem mostra que `0x4937` carrega dados para VRAM por `0x0226`, zera `C26C`, aguarda `0x406C` e retorna ao scheduler; o ramo `0x4970` só prossegue para o resolvedor em `0x4B94` quando as guardas de `C005` e `C004` permitem. O próximo probe deve preservar esses estados fora do limite focalizado e correlacionar a entrada em `0x48D5` com as escritas do scheduler/VDP, sem tratar a simples passagem por `0x4970` como diálogo alcançado.
+
+## Correção do monitor do gate de diálogo
+
+A auditoria do trace revelou que C004, C005, C02B e C26C não faziam parte das faixas de memória sempre preservadas pelo capturador; portanto, a ausência anterior desses endereços no relatório não podia ser usada como evidência de que não eram lidos. O capturador foi corrigido para registrar leituras e escritas nesses quatro endereços independentemente da faixa focalizada.
+
+Na reprodução de 1.200 blocos com a ROM japonesa e semântica de I/O do Dega, foram observadas uma passagem por `0x4970` e uma chamada a `0x4B94`, mas o fluxo terminou em `0x4073` sem alcançar `0x4A8D`. O novo monitor registrou `C004=0` e `C005=0` nas leituras preservadas, `C02B` inicializado em `0` e depois `1`, e `C26C` zerado em `0x00AD` e `0x4939`. Essa evidência é mais forte que a ausência anterior, mas ainda não prova a causa do retorno ao carregamento: a auditoria continua classificando a captura como `risk` por breakpoint não alcançado.
+
+Foi criado `tools/analyze_dialog_state_gate.py` para consolidar esses estados, os PCs do gate e o resultado da auditoria. O próximo diagnóstico deve acompanhar a segunda chamada a `0x4B94` e os dados retornados por ela, sem forçar C004/C005/C26C nem aceitar a primeira visita a `0x4970` como transição de diálogo.
