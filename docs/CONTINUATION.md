@@ -618,3 +618,9 @@ Foi criado `tools/analyze_dialog_state_gate.py` para consolidar esses estados, o
 Foi criada `tools/apply_exact_patches.py`, um aplicador conservador que nunca modifica a ROM de entrada: exige bytes originais exatos, exige que a substituição tenha o mesmo tamanho, preserva o tamanho total da ROM e gera um manifesto ao lado da cópia de saída. O manifesto `build/ptbr_menu_patch.json` contém o primeiro patch validado: na ROM japonesa, `NEW GAME ` em `0x4672` foi substituído por `NOVO JOGO` usando o espaço de preenchimento existente.
 
 A cópia de trabalho foi gerada como `input/kujaku_ou_ptbr_working.sms`, permanece ignorada pelo Git e tem 524288 bytes. A ROM original manteve SHA-256 `bfc5514e173113508d05721b3b45a70bb7a11d42d4e1ff0ff410460f1caa0a51`; a cópia privada modificada tem SHA-256 diferente e exibe `NOVO JOGO` no offset validado. Este é somente o primeiro patch de menu, não uma tradução final: os streams narrativos, ponteiros, comandos especiais, limites, checksum e validação visual ainda precisam ser resolvidos antes da entrega da cópia traduzida.
+
+## Primeira tela PT-BR ampliada
+
+O manifesto `build/ptbr_menu_patch.json` foi ampliado para três substituições ASCII exatas na ROM japonesa: `NEW GAME `→`NOVO JOGO`, `PASSWORD!`→`SENHA!!! ` e `PUSH START BUTTON`→`APERTE START` seguido de cinco espaços. Todas as substituições preservam o comprimento original e foram verificadas contra os bytes da ROM antes da aplicação.
+
+A cópia privada `input/kujaku_ou_ptbr_working.sms` foi regenerada a partir da ROM original, manteve 524288 bytes e contém os três rótulos nas posições `0x4672`, `0x4686` e `0x46F0`. A ROM original não foi modificada nem incluída no Git. Esses patches traduzem somente a tela inicial; a tradução narrativa continua bloqueada até os streams finais e seus comandos serem validados.

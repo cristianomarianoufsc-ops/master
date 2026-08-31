@@ -4,5 +4,17 @@
     "offset": "0x4672",
     "expected": "4e45572047414d4520",
     "replacement": "4e4f564f204a4f474f"
+  },
+  {
+    "label": "menu-password",
+    "offset": "0x4686",
+    "expected": "50415353574f524421",
+    "replacement": "53454e484121212120"
+  },
+  {
+    "label": "menu-push-start-button",
+    "offset": "0x46F0",
+    "expected": "5055534820535441525420425554544f4e",
+    "replacement": "4150455254452053544152542020202020"
   }
 ]
