@@ -147,6 +147,12 @@ def trace_event(kind, address=None, value=None, force=False):
         low = ram[ram_index(cpu.sp)]
         high = ram[ram_index((cpu.sp + 1) & 0xFFFF)]
         record["return_address"] = f"0x{((high << 8) | low):04X}"
+        state_addresses = (0xC203, 0xDD03, 0xDD57, 0xDD64, 0xDD66,
+                           0xDD97, 0xDDB7, 0xDDF7, 0xDE0F, 0xDE10,
+                           0xDE11, 0xDE12)
+        record["a0_state"] = {
+            f"0x{addr:04X}": ram[ram_index(addr)] for addr in state_addresses
+        }
     trace_records.append(record)
 
 rom = a.rom.read_bytes()

@@ -384,3 +384,9 @@ O capturador recebeu `--trace-call-targets`, que registra a entrada em PCs de ch
 A entrada em `0x8B81` também foi registrada, mas com topo de pilha `0x00/0x00`, confirmando que o ponto pertence ao fluxo interno de `0x8B62` e não deve ser usado para reconstruir o retorno. O relatório está em `build/a0_call_target_probe_2026-08-30.md`. A execução terminou em `0x4073` sem alcançar `0x4A8D`, portanto continua sendo evidência diagnóstica e não snapshot válido de `C280`.
 
 A ambiguidade entre o chamador fixo e o paginado foi eliminada. O próximo probe deve comparar o estado `DD03`, `DD97`, `DDB7`, `DDF7–DE12`, `C203` e os bancos imediatamente antes das entradas com retorno `0x0536` e `0x456C`, priorizando a reentrada paginada do bloco 277.
+
+## Comparação de estado na entrada de 0x8B62
+
+Foi adicionado um snapshot atômico aos eventos `call_target`. Nos blocos 41, 46, 267 e 278, com retorno `0x0536` pelo caminho fixo, e no bloco 277, com retorno `0x456C` pelo caminho paginado, os campos monitorados `C203`, `DD03`, `DD57`, `DD64`, `DD66`, `DD97`, `DDB7`, `DDF7` e `DE0F–DE12` estavam todos em `0x00` na entrada de `0x8B62`. `FFFF` era `0x82` em todos os casos; `FFFE` era `0x01`, exceto no retorno fixo do bloco 278, quando já estava em `0x95`.
+
+A diferença entre os caminhos, portanto, não aparece como valor residual nesses campos no instante da entrada. Isso não prova que eles sejam irrelevantes: podem ter sido consumidos e zerados antes da chamada. A próxima captura deve observar o intervalo imediatamente anterior aos `CALL`s em `0x0533` e `0x4569`, incluindo registradores, flags, leituras/escritas, HL/DE e endereços fora de DDxx. O relatório está em `build/a0_state_compare_probe_2026-08-30.md`.
