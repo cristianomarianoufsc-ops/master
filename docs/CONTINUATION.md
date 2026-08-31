@@ -480,3 +480,11 @@ Foi criada `tools/align_z80_signatures.py`, que decodifica rotinas Z80 e compara
 Aplicação no banco 21: a rotina americana em `0x4BCB–0x4C00` foi comparada com a japonesa em `0x4BBD–0x4BF5`, usando janelas de 10 instruções. Foram decodificadas 41 instruções americanas e 42 japonesas; 32 janelas tiveram correspondência única. O relatório está em `build/z80_b21_alignment_usa_japan.json`. Isso confirma automaticamente o deslocamento estrutural da rotina equivalente a `04BBD` e valida a estratégia de ignorar operandos variáveis.
 
 O próximo passo é aplicar a ferramenta a blocos maiores do banco 21, incluindo a rotina equivalente a `04CFD`, os chamadores de `C022/C205/C215/C251` e as regiões de mensagens. As correspondências únicas devem ser usadas para mapear funções e tabelas; não devem ainda ser usadas para gerar patch sem confirmação dinâmica.
+
+## Alinhamento estrutural ampliado: 04CFD e C280
+
+A ferramenta `align_z80_signatures.py` foi aplicada à rotina americana equivalente a `04CFD` (`0x4D0B–0x4D70`) contra a japonesa (`0x4CFD–0x4D62`). Em janelas de 10 instruções, foram encontradas 82 correspondências, sendo 74 únicas, entre 91 instruções de cada lado. Isso confirma que a semântica de `04CFD` é compartilhada apesar do deslocamento de 14 bytes.
+
+O bloco de limpeza/construção de `C280` também alinhou: o início americano em `0x4A81` corresponde ao japonês em `0x4A73`, com 7 janelas únicas de 8 instruções. A busca literal localiza o ponto japonês `0x4A8D` em torno de `0x4A9B` na americana, indicando que o breakpoint equivalente americano é `0x4A9B`, não `0x4A8D`.
+
+Os relatórios estão em `build/z80_04cfd_alignment_usa_japan.json` e `build/z80_c280_alignment_usa_japan.json`. A versão americana agora pode ser usada para estudar o fluxo homólogo no breakpoint `0x4A9B` e identificar quais valores de estado precedem a resolução de C280, sem confundir offsets entre versões.

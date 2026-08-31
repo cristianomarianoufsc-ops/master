@@ -1,0 +1,318 @@
+{
+  "reference": "input/SpellCaster(USA,Europe).sms",
+  "target": "input/KujakuOu(Japan).sms",
+  "reference_bank": 21,
+  "target_bank": 21,
+  "reference_range": [
+    19073,
+    19109
+  ],
+  "target_range": [
+    19059,
+    19095
+  ],
+  "window": 8,
+  "matches": [
+    {
+      "reference_cpu": 19073,
+      "reference_file": 346753,
+      "target_hits": [
+        19059
+      ],
+      "unique": true,
+      "window_instructions": 8,
+      "signature": [
+        [
+          33,
+          3
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          54,
+          2
+        ],
+        [
+          237,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19076,
+      "reference_file": 346756,
+      "target_hits": [
+        19062
+      ],
+      "unique": true,
+      "window_instructions": 8,
+      "signature": [
+        [
+          17,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          54,
+          2
+        ],
+        [
+          237,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          54,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19079,
+      "reference_file": 346759,
+      "target_hits": [
+        19065
+      ],
+      "unique": true,
+      "window_instructions": 8,
+      "signature": [
+        [
+          1,
+          3
+        ],
+        [
+          54,
+          2
+        ],
+        [
+          237,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          54,
+          2
+        ],
+        [
+          237,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19082,
+      "reference_file": 346762,
+      "target_hits": [
+        19068
+      ],
+      "unique": true,
+      "window_instructions": 8,
+      "signature": [
+        [
+          54,
+          2
+        ],
+        [
+          237,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          54,
+          2
+        ],
+        [
+          237,
+          2
+        ],
+        [
+          33,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19084,
+      "reference_file": 346764,
+      "target_hits": [
+        19070
+      ],
+      "unique": true,
+      "window_instructions": 8,
+      "signature": [
+        [
+          237,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          54,
+          2
+        ],
+        [
+          237,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          205,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19086,
+      "reference_file": 346766,
+      "target_hits": [
+        19072
+      ],
+      "unique": true,
+      "window_instructions": 8,
+      "signature": [
+        [
+          33,
+          3
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          54,
+          2
+        ],
+        [
+          237,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          50,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19089,
+      "reference_file": 346769,
+      "target_hits": [
+        19075
+      ],
+      "unique": true,
+      "window_instructions": 8,
+      "signature": [
+        [
+          17,
+          3
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          54,
+          2
+        ],
+        [
+          237,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          33,
+          3
+        ]
+      ]
+    }
+  ]
+}
