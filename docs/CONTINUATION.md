@@ -420,3 +420,9 @@ A rotina `0x8B62` foi desmontada no banco efetivo 2. Ela salva HL/DE/BC, zera/co
 O chamador fixo `0x0533` executa `CALL 0x8B62`, depois `EI`, chama `0x04E1` e retorna a `0x0201`. O chamador paginado `0x4569` executa o mesmo `CALL` e, no retorno em `0x456C`, lê `C119`, compara com `4` e, se diferente, atualiza `C119`, `C0A0`, `C11D` e copia 32 bytes de `0x46C0` para `C0E0`. O novo relatório está em `build/a0_semantic_disassembly_2026-08-30.md`.
 
 A investigação deve agora concentrar-se no valor de `C119` antes de `0x4569` e no efeito do teste em `0x456C–0x4571`, pois esse é o primeiro ponto condicional real após a limpeza comum.
+
+## Branch C119 após a limpeza A0
+
+No bloco 277, o caminho paginado chega a `0x4569` com `C119=0x01`, instalado explicitamente por `0x4530`. Após o retorno de `0x8B62` em `0x456C`, o código lê `C119=1`, compara com `4` e não toma o salto condicional. Em seguida instala `C119=5`, `C0A0=5`, `C11D=1` e copia 32 bytes de `0x46C0` para `C0E0`.
+
+A condição contra `4` não bloqueia o caminho nesta reprodução; ela seleciona a transição para o estado `5`. O próximo gargalo está depois de `0x4589`, em quem consome `C0E0` e os estados `C0A0/C11D`, ou na condição especial que produziria `C119=4`. O relatório está em `build/a0_c119_branch_probe_2026-08-30.md`.
