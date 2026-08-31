@@ -540,3 +540,11 @@ A conclusão importante é que os ponteiros dos handlers levam principalmente a 
 Foi executado trace forçado de `C206`, `C223` e `C238` durante 3500 blocos da ROM japonesa, com IRQ por scanline, frame do Dega e semântica de I/O ativa-baixa. A execução terminou em `0x406C`, com `FFFE=0x95` e `FFFF=0x82`, sem alcançar `0x4A8D` ou os handlers narrativos. Os únicos eventos nesses campos foram inicializações/limpezas em `0x00AD`, `0x4939` e `0x4496`, todos com valor zero; nenhum ponteiro não nulo foi observado.
 
 O resultado é inconclusivo para texto, mas útil como controle negativo: não é válido interpretar zeros como streams nem gerar patch. O relatório está em `build/dialogue_runtime_pointer_probe.md`. A próxima execução precisa reproduzir a janela que alcança o armamento A0 e depois o scheduler, ou corrigir o modelo dessa tarefa antes de tentar capturar novamente `C223/C238`.
+
+## Auditoria do pacote ROMPROJECT do Zed
+
+Foi recebido o pacote `ROMPROJECT.tar.gz` e inspecionado somente quanto às ferramentas Python, ignorando ROMs, emuladores e objetos compilados. O pacote contém extratores baseados em Shift-JIS/ASCII, scripts de templates e injetores preliminares.
+
+A ideia de agrupamento de ponteiros de `extrair_textos_ponteiros.py` é útil, mas já foi substituída no projeto por `extract_dialog_streams.py`, que respeita bancos SMS, terminadores `FF` e classificação de bytecode. `extract_japanese_text.py` pode servir como triagem, mas não como decodificador: os resultados corrompidos confirmam que o jogo usa um código de glifo próprio ou uma camada de transformação. `injetar_traducao_v2.py` tem uma rotina de checksum potencialmente reaproveitável, porém seu injetor é inseguro porque assume Shift-JIS, procura ponteiros em faixas amplas e não conhece os handlers paginados.
+
+Os templates do pacote incluem tentativas preliminares como `004739: INICIAR`, mas não foram tratados como mapa validado. Nenhuma ferramenta de injeção, ROM, emulador ou objeto compilado foi incorporado. O relatório está em `build/zed_tools_audit.md`. O próximo passo permanece o mapeamento do código de glifos e dos streams finais `C223/C238`; só depois deve ser implementado o injetor seguro e a cópia privada traduzida.
