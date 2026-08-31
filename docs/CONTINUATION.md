@@ -624,3 +624,7 @@ A cópia de trabalho foi gerada como `input/kujaku_ou_ptbr_working.sms`, permane
 O manifesto `build/ptbr_menu_patch.json` foi ampliado para três substituições ASCII exatas na ROM japonesa: `NEW GAME `→`NOVO JOGO`, `PASSWORD!`→`SENHA!!! ` e `PUSH START BUTTON`→`APERTE START` seguido de cinco espaços. Todas as substituições preservam o comprimento original e foram verificadas contra os bytes da ROM antes da aplicação.
 
 A cópia privada `input/kujaku_ou_ptbr_working.sms` foi regenerada a partir da ROM original, manteve 524288 bytes e contém os três rótulos nas posições `0x4672`, `0x4686` e `0x46F0`. A ROM original não foi modificada nem incluída no Git. Esses patches traduzem somente a tela inicial; a tradução narrativa continua bloqueada até os streams finais e seus comandos serem validados.
+
+## Smoke test da cópia PT-BR
+
+A cópia privada `input/kujaku_ou_ptbr_working.sms` foi executada no mesmo capturador e com a mesma configuração da ROM original. Após 300 blocos, ambas terminaram em `PC=0x4073`, `SP=0xDFEC`, `FFFE=0x95`, `FFFF=0x0C` e `C280` com 20 entradas não nulas. O resultado `step_limit` é esperado neste smoke test, pois o breakpoint narrativo `0x4A8D` não é objetivo desta verificação. A igualdade dos estados de execução confirma que os patches da tela inicial não alteraram o fluxo de boot; a cópia ainda não é uma tradução completa.
