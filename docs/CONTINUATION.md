@@ -628,3 +628,11 @@ A cópia privada `input/kujaku_ou_ptbr_working.sms` foi regenerada a partir da R
 ## Smoke test da cópia PT-BR
 
 A cópia privada `input/kujaku_ou_ptbr_working.sms` foi executada no mesmo capturador e com a mesma configuração da ROM original. Após 300 blocos, ambas terminaram em `PC=0x4073`, `SP=0xDFEC`, `FFFE=0x95`, `FFFF=0x0C` e `C280` com 20 entradas não nulas. O resultado `step_limit` é esperado neste smoke test, pois o breakpoint narrativo `0x4A8D` não é objetivo desta verificação. A igualdade dos estados de execução confirma que os patches da tela inicial não alteraram o fluxo de boot; a cópia ainda não é uma tradução completa.
+
+## Captura limpa estendida da cadeia narrativa
+
+Uma execução de 5000 blocos foi repetida com trace mínimo, `--trace-every 128` e monitor dedicado de `C200–C26F`, evitando a saturação causada por registrar cada opcode. Foram observados 20 VBlanks, 19 solicitações e 19 aceitações de IRQ, além de 19 leituras do controle; portanto, a cadeia periódica de interrupção permanece estável nessa configuração.
+
+O ciclo de `C203` foi observado repetidamente: as rotinas `0x432F` e `0x4352` continuam limpando o estado, enquanto `0x406A` e `0x403F` rearmam operações. Além da escrita inicial `C206=0x80` em `0x4146`, apareceu uma escrita posterior `C206=0x82` e `C207=0x80` em `0x5275`, no bloco 4981. `C223`, `C238`, `C205`, `C215` e `C251` permaneceram apenas com as inicializações zeradas; o breakpoint `0x4A8D` não foi alcançado.
+
+O auditor classificou o relatório como `risk` somente por `BREAKPOINT_NOT_REACHED`, loop dominante e entrada variável. A ausência de saturação torna esta evidência mais confiável para o ciclo de estado, mas não permite declarar diálogo ou snapshot de `C280`. O próximo probe deve acompanhar o banco e a rotina em torno de `0x5275`, correlacionando a nova escrita de `C206/C207` com a entrada do dispatcher e com a futura criação de `C223/C238`.
