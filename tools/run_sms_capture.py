@@ -57,6 +57,8 @@ p.add_argument("--trace-call-targets", type=str, default="0x8B62",
                help="comma-separated call-target PCs whose entry records include return address")
 p.add_argument("--trace-pointer-limit", type=int, default=4096,
                help="maximum dedicated writes retained for C205/C206/C223/C238")
+p.add_argument("--trace-exec-limit", type=int, default=20000,
+               help="maximum dedicated opcode-fetch records retained")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
 
@@ -83,6 +85,7 @@ current_input = a.input_value & 0xFF
 input_history = []
 trace_pointer_addresses = set(range(0xC205, 0xC209)) | set(range(0xC223, 0xC225)) | set(range(0xC238, 0xC23A))
 pointer_writes = []
+exec_records = []
 try:
     trace_start, trace_end = [int(item, 0) for item in a.trace_pc_range.split("-", 1)]
 except ValueError as exc:
@@ -204,6 +207,14 @@ def read_mem(addr):
         trace_event("call_target", addr, force=True)
     if (trace_exec_start is not None and 'cpu' in globals() and
             trace_exec_start <= cpu.pc <= trace_exec_end and addr == cpu.pc):
+        if len(exec_records) < a.trace_exec_limit:
+            exec_records.append({
+                "run": current_run,
+                "pc": f"0x{cpu.pc:04X}",
+                "bank_fffe": mapper[0xFFFE],
+                "bank_ffff": mapper[0xFFFF],
+                "sp": cpu.sp & 0xFFFF,
+            })
         trace_event("exec", addr, force=True)
     # The real SMS clears C008 from a VDP/interrupt path during the call at
     # 04E4. With no VDP timing model, release only this known polling loop
@@ -489,6 +500,12 @@ report = {
         "addresses": [f"0x{x:04X}" for x in sorted(trace_pointer_addresses)],
         "limit": a.trace_pointer_limit,
         "records": pointer_writes,
+    },
+    "exec_records": {
+        "range": ([f"0x{trace_exec_start:04X}", f"0x{trace_exec_end:04X}"]
+                  if trace_exec_start is not None else None),
+        "limit": a.trace_exec_limit,
+        "records": exec_records,
     },
     "result": result,
     "steps": steps,

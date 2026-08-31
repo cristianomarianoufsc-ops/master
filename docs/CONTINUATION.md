@@ -572,3 +572,11 @@ A instrumentação do capturador foi ampliada em `tools/run_sms_capture.py` com 
 Na execução com sequência de entrada `FF,FE,FD,FB,F7,EF,DF,BF,7F`, cadência de scanline do Dega e semântica de I/O ativa-baixa, foram registradas 26 escritas nesses campos. As inicializações em `0x00AD`, `0x4939` e `0x4496` escreveram apenas zeros. O primeiro valor não nulo apareceu em `PC=0x4146`: `C206=C207=0x80`, com `FFFE=0x95` e `FFFF=0x16`. `C223/C238` permaneceram nulos, e a execução terminou em `0x4073` por limite de blocos.
 
 A conclusão é que não é necessária uma nova ferramenta pós-processadora neste momento. O problema era a ausência de um monitor dedicado no capturador; a alteração atual já identifica o primeiro estado não nulo e o banco ativo. O próximo ajuste deve seguir a cadeia a partir de `0x4146`, reproduzir a transição que transforma `C206` em ponteiro de objeto e determinar qual evento de cena habilita as escritas posteriores em `C223/C238`.
+
+## Trace dedicado após C206=0x8080
+
+O capturador recebeu um segundo canal de trace, `--trace-exec-limit`, que preserva buscas de opcode no intervalo solicitado independentemente do limite geral de eventos de memória. Isso foi necessário porque o trace anterior era saturado por acessos de hardware antes de registrar a região de interesse.
+
+Com o intervalo `0x4000–0x4A90`, a execução confirmou que a passagem por `0x4146` ocorre nos primeiros runs e grava `C206=C207=0x80` enquanto `FFFE=0x95` e `FFFF=0x16`. Depois da transição, o executor alcança repetidamente `0x4937/0x4938` no banco paginado do slot `FFFE`; os bytes físicos correspondentes começam por `14 02 CD 26 02 AF 32 6C C2...`. Esse caminho retorna ao scheduler sem produzir escritas não nulas em `C223/C238`, e a captura termina em `0x4073` por limite de blocos.
+
+A instrumentação atual é suficiente para continuar; não foi criada uma ferramenta independente. O próximo passo é modelar ou verificar o estado consumido pelo scheduler em `0x4937`, especialmente a chamada `0x0226`, a escrita de `C26C` e as condições de entrada que levam de `C206` ao dispatcher de cena. Não se deve liberar esse laço genericamente, pois isso poderia fabricar um estado de diálogo inexistente.
