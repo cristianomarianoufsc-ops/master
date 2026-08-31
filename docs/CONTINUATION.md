@@ -432,3 +432,9 @@ A condição contra `4` não bloqueia o caminho nesta reprodução; ela selecion
 A desmontagem pós-`0x4589` localizou a rotina `0x078A–0x07CD`: ela copia 32 bytes a partir de `C0E0`, restaura DE, define `C0A0=4` e transforma os bytes de `C0E0` com `RLD/RRD`, máscaras e subtrações dependentes de D. Portanto, o bloco instalado pelo caminho `0x4569` é uma estrutura intermediária codificada, não texto direto.
 
 O trace também mostrou escritas em `C0E0/C0E1/C0FF` por `0x0718`, `0x071F`, `0x0721`, `0x0743`, `0x0792` e `0x07A4`, além da mudança de `C0A0` para `4`. O próximo probe deve capturar `0x078A–0x07D0`, o valor de D usado nas subtrações e o destino após o laço, seguindo a cadeia até o renderizador.
+
+## Gate VDP e ordenação temporal da máquina A0
+
+O trace de 1.100 passos confirmou que a máquina `0x078A–0x07F2` completa cinco ciclos e então zera `C0A0`, `C0A2` e `C113`, marcando `C0A4=1`. Depois, o scheduler `0x06CE` é executado após `C080=0`, mas lê `C0A0=0` e retorna; o caminho `0x06D8–0x06E4`, que transferiria `C0E0` para `C000` via `RST 30h`, não é tomado.
+
+Isso aponta para uma condição de ordenação temporal entre a conclusão da máquina, o IRQ/VDP e o scheduler. A próxima investigação deve comparar a ordem de `0x07E5–0x07F2`, `0x180E` e `0x06CE`, verificando se a cadência de IRQ do emulador está atrasando a avaliação de `C0A0`. Não deve haver desbloqueio artificial de `C0A0`. O relatório está em `build/a0_vdp_gate_probe_2026-08-30.md`.
