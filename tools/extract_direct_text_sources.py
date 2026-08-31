@@ -17,16 +17,16 @@ bank = rom[base:base+0x4000]
 seen = set()
 rows = []
 for i, line in enumerate(asm):
-    if not re.search(r'ld hl,0[0-9a-f]+h', line, re.I):
+    if not re.search(r'ld hl,\s*(?:0x[0-9a-f]+|0[0-9a-f]+h)', line, re.I):
         continue
-    m = re.search(r'ld hl,0([0-9a-f]+)h', line, re.I)
+    m = re.search(r'ld hl,\s*(?:0x([0-9a-f]+)|0([0-9a-f]+)h)', line, re.I)
     if not m:
         continue
-    addr = int(m.group(1), 16)
+    addr = int(m.group(1) or m.group(2), 16)
     if not (0x4000 <= addr < 0x8000):
         continue
     nearby = '\n'.join(asm[i:min(i+6, len(asm))])
-    if not re.search(r'0c223h|0c238h', nearby, re.I):
+    if not re.search(r'(?:0xc223|0xc238|0c223h|0c238h)', nearby, re.I):
         continue
     if addr in seen:
         continue

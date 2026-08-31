@@ -506,3 +506,9 @@ O resultado confirma que a instrumentação atual é suficiente para acompanhar 
 Além do patch PT-BR distribuível, o objetivo inclui gerar uma cópia privada da ROM fornecida pelo usuário com a tradução aplicada, para uso pessoal do próprio usuário. A cópia modificada completa e a ROM original nunca devem ser adicionadas ao GitHub, aos commits ou aos relatórios versionados; devem permanecer em diretório local ignorado e ser entregues separadamente apenas ao usuário quando a tradução estiver validada. O patch deve continuar sendo o artefato reproduzível principal, aplicado sobre a ROM original correspondente.
 
 A cópia traduzida só deve ser gerada depois de validar fontes, ponteiros, limites de mensagens, comandos especiais, bancos e checksum da ROM. Não considerar uma ROM com textos parcialmente substituídos ou com snapshot dinâmico não validado como entrega final.
+
+## Primeiro inventário comparativo de streams de texto
+
+O extrator `tools/extract_direct_text_sources.py` foi corrigido para reconhecer o formato atual do disassembler (`0xc223`/`0xc238`) além do formato legado. Executado nas duas ROMs, ele encontrou seis candidatos diretos em cada banco 21. Os seis streams são byte a byte idênticos entre as versões, com deslocamentos Japão–EUA de `+0x0A` no primeiro e `+0x2B` nos demais: `0x542A→0x5434`, `0x5A2D→0x5A58`, `0x5F1A→0x5F45`, `0x61E8→0x6213`, `0x61F7→0x6222` e `0x62DF→0x630A`.
+
+Isso valida o extrator e fornece âncoras precisas para o alinhamento. Esses seis candidatos ainda não são o diálogo principal; os streams narrativos são carregados por handlers paginados e devem ser resolvidos acompanhando `05C16`, `C206`, `C223` e `C238` em runtime. O relatório está em `build/usa_japan_direct_text_comparison.md`, com os dumps em `build/usa_direct_text_sources.md` e `build/japan_direct_text_sources.md`.
