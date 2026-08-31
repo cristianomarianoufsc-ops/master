@@ -55,6 +55,8 @@ p.add_argument("--trace-exec-range", type=str, default=None,
                help="inclusive PC range whose opcode fetches are recorded")
 p.add_argument("--trace-call-targets", type=str, default="0x8B62",
                help="comma-separated call-target PCs whose entry records include return address")
+p.add_argument("--trace-pointer-limit", type=int, default=4096,
+               help="maximum dedicated writes retained for C205/C206/C223/C238")
 p.add_argument("--out", type=Path, required=True)
 a = p.parse_args()
 
@@ -79,6 +81,8 @@ except ValueError as exc:
     raise SystemExit(f"invalid --vdp-wait-pcs: {a.vdp_wait_pcs!r}") from exc
 current_input = a.input_value & 0xFF
 input_history = []
+trace_pointer_addresses = set(range(0xC205, 0xC209)) | set(range(0xC223, 0xC225)) | set(range(0xC238, 0xC23A))
+pointer_writes = []
 try:
     trace_start, trace_end = [int(item, 0) for item in a.trace_pc_range.split("-", 1)]
 except ValueError as exc:
@@ -247,6 +251,14 @@ def write_mem(addr, value):
     addr &= 0xFFFF
     value &= 0xFF
     writes[addr] = writes.get(addr, 0) + 1
+    if addr in trace_pointer_addresses and len(pointer_writes) < a.trace_pointer_limit:
+        pointer_writes.append({
+            "pc": f"0x{cpu.pc:04X}" if "cpu" in globals() else None,
+            "address": f"0x{addr:04X}",
+            "value": value,
+            "previous": ram[ram_index(addr)] if addr >= 0xC000 else None,
+            "mapper": {f"0x{k:04X}": v for k, v in mapper.items()},
+        })
     if (addr == 0xC008 or 0xC020 <= addr <= 0xC030 or
             0xC200 <= addr <= 0xC251 or addr in mapper or
             (trace_memory_start is not None and trace_memory_start <= addr <= trace_memory_end) or
@@ -445,8 +457,9 @@ snapshot = {f"0x{0xC000 + i:04X}": ram[i] for i in range(len(ram)) if ram[i]}
 interesting = {f"0x{x:04X}": read_mem(x) for x in
                list(range(0xD100, 0xD140)) +
                [0xC020, 0xC021, 0xC022, 0xC025, 0xC026, 0xC027,
-                0xC028, 0xC030, 0xC032, 0xC205, 0xC215, 0xC238,
-                0xC251, 0xC280, 0xC281]}
+                0xC028, 0xC030, 0xC032, 0xC205, 0xC206, 0xC207,
+                0xC215, 0xC223, 0xC224, 0xC238, 0xC239, 0xC251,
+                0xC280, 0xC281]}
 # C280 is a 256-entry runtime acceptance/translation table, not a single byte.
 # Capture the complete region so a successful runtime trace can be converted
 # directly into an auditable code-to-glyph map without re-running the CPU.
@@ -472,6 +485,11 @@ report = {
               "limit": a.trace_limit, "sample_every": a.trace_every, "forced_addresses": [f"0x{x:04X}" for x in sorted(trace_forced_addresses)],
               "events_seen": trace_event_count, "records": trace_records,
               "call_targets": [f"0x{x:04X}" for x in sorted(trace_call_targets)]},
+    "pointer_writes": {
+        "addresses": [f"0x{x:04X}" for x in sorted(trace_pointer_addresses)],
+        "limit": a.trace_pointer_limit,
+        "records": pointer_writes,
+    },
     "result": result,
     "steps": steps,
     "events": events[-32:],

@@ -564,3 +564,11 @@ O capturador `tools/run_sms_capture.py` passou a registrar a região completa `C
 Foi criada `tools/build_runtime_glyph_map.py`, que converte a captura em um mapa auditável código→glifo e cruza os códigos aceitos com os 260 streams do relatório `build/japan_dialog_streams.json`. O resultado está em `build/runtime_c280_glyph_map.md`: os códigos são usados como o próprio índice de glifo pelo loop de texto, com offsets `code*0x10` na origem `AD0C` do banco 13 e `code*0x80` após a transformação modelada de `05B3E`. O cruzamento encontrou 2189 ocorrências de códigos aceitos.
 
 Este resultado é uma fotografia do caminho de execução atual, não o mapa final do jogo. A execução ainda não entrou no fluxo narrativo nem alcançou `0x4A8D`; portanto, os streams continuam sendo referências estruturais e as contagens não comprovam texto narrativo. O próximo passo seguro é obter uma captura que arme a transição de cena/dialogue, ou integrar um snapshot/trace real nesse ponto, antes de preparar qualquer patch.
+
+## Rastreamento dedicado de ponteiros de cena
+
+A instrumentação do capturador foi ampliada em `tools/run_sms_capture.py` com uma lista dedicada de escritas em `C205–C208`, `C223–C224` e `C238–C239`, independente do limite geral do trace. O snapshot final também passou a incluir os bytes baixos e altos de `C206`, `C223` e `C238`.
+
+Na execução com sequência de entrada `FF,FE,FD,FB,F7,EF,DF,BF,7F`, cadência de scanline do Dega e semântica de I/O ativa-baixa, foram registradas 26 escritas nesses campos. As inicializações em `0x00AD`, `0x4939` e `0x4496` escreveram apenas zeros. O primeiro valor não nulo apareceu em `PC=0x4146`: `C206=C207=0x80`, com `FFFE=0x95` e `FFFF=0x16`. `C223/C238` permaneceram nulos, e a execução terminou em `0x4073` por limite de blocos.
+
+A conclusão é que não é necessária uma nova ferramenta pós-processadora neste momento. O problema era a ausência de um monitor dedicado no capturador; a alteração atual já identifica o primeiro estado não nulo e o banco ativo. O próximo ajuste deve seguir a cadeia a partir de `0x4146`, reproduzir a transição que transforma `C206` em ponteiro de objeto e determinar qual evento de cena habilita as escritas posteriores em `C223/C238`.
