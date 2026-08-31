@@ -390,3 +390,11 @@ A ambiguidade entre o chamador fixo e o paginado foi eliminada. O próximo probe
 Foi adicionado um snapshot atômico aos eventos `call_target`. Nos blocos 41, 46, 267 e 278, com retorno `0x0536` pelo caminho fixo, e no bloco 277, com retorno `0x456C` pelo caminho paginado, os campos monitorados `C203`, `DD03`, `DD57`, `DD64`, `DD66`, `DD97`, `DDB7`, `DDF7` e `DE0F–DE12` estavam todos em `0x00` na entrada de `0x8B62`. `FFFF` era `0x82` em todos os casos; `FFFE` era `0x01`, exceto no retorno fixo do bloco 278, quando já estava em `0x95`.
 
 A diferença entre os caminhos, portanto, não aparece como valor residual nesses campos no instante da entrada. Isso não prova que eles sejam irrelevantes: podem ter sido consumidos e zerados antes da chamada. A próxima captura deve observar o intervalo imediatamente anterior aos `CALL`s em `0x0533` e `0x4569`, incluindo registradores, flags, leituras/escritas, HL/DE e endereços fora de DDxx. O relatório está em `build/a0_state_compare_probe_2026-08-30.md`.
+
+## Janela causal anterior aos CALLs A0
+
+Foi criada `tools/compare_a0_call_windows.py` para comparar traces estreitos e foram adicionados `F`, `IX` e `IY` aos registros do capturador. A comparação encontrou a primeira diferença concreta imediatamente antes dos dois CALLs.
+
+O caminho fixo (`0x0533 → 0x0536`) chega à entrada com `A=0x82`, `F=0x80`, `DE=0x8900`, `HL=0xC73F` e `SP=0xDFEC` antes do empilhamento. O caminho paginado (`0x4569 → 0x456C`) chega com `A=0x82`, `F=0x10`, `DE=0x0003`, `HL=0x4547` e o mesmo SP. O caminho fixo passa por `0x0526–0x0534`, lê `C73E`, escreve `C73F` e atualiza `DE`; o caminho paginado passa por `0x4564–0x456A` e é precedido por escritas repetidas de `0x03` em `C008` no loop `0x04E4`.
+
+A diferença não está nos campos DDxx/C203 na entrada de `0x8B62`, que permanecem zerados, mas nos parâmetros e flags entregues à rotina. O próximo probe deve acompanhar como `0x8B62` consome `HL=0x4547`, `DE=0x0003`, `F=0x10` e `C008=0x03`, comparando com `HL=0xC73F`, `DE=0x8900`, `F=0x80` do caminho fixo. O relatório está em `build/a0_causal_window_probe_2026-08-30.md`.

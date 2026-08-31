@@ -137,8 +137,10 @@ def trace_event(kind, address=None, value=None, force=False):
               "sp": cpu.sp & 0xFFFF,
               "stack0": ram[ram_index(cpu.sp)] if 0xC000 <= cpu.sp <= 0xDFFF else None,
               "stack1": ram[ram_index((cpu.sp + 1) & 0xFFFF)] if 0xC000 <= cpu.sp + 1 <= 0xDFFF else None,
-              "a": cpu.a, "b": cpu.b, "c": cpu.c, "d": cpu.d,
-              "e": cpu.e, "h": cpu.h, "l": cpu.l}
+              "a": cpu.a, "f": getattr(cpu, "f", None),
+              "b": cpu.b, "c": cpu.c, "d": cpu.d,
+              "e": cpu.e, "h": cpu.h, "l": cpu.l,
+              "ix": getattr(cpu, "ix", None), "iy": getattr(cpu, "iy", None)}
     if address is not None:
         record["address"] = f"0x{address & 0xFFFF:04X}"
     if value is not None:
