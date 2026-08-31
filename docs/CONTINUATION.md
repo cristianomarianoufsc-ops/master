@@ -438,3 +438,9 @@ O trace também mostrou escritas em `C0E0/C0E1/C0FF` por `0x0718`, `0x071F`, `0x
 O trace de 1.100 passos confirmou que a máquina `0x078A–0x07F2` completa cinco ciclos e então zera `C0A0`, `C0A2` e `C113`, marcando `C0A4=1`. Depois, o scheduler `0x06CE` é executado após `C080=0`, mas lê `C0A0=0` e retorna; o caminho `0x06D8–0x06E4`, que transferiria `C0E0` para `C000` via `RST 30h`, não é tomado.
 
 Isso aponta para uma condição de ordenação temporal entre a conclusão da máquina, o IRQ/VDP e o scheduler. A próxima investigação deve comparar a ordem de `0x07E5–0x07F2`, `0x180E` e `0x06CE`, verificando se a cadência de IRQ do emulador está atrasando a avaliação de `C0A0`. Não deve haver desbloqueio artificial de `C0A0`. O relatório está em `build/a0_vdp_gate_probe_2026-08-30.md`.
+
+### Correção do handler IRQ/VDP
+
+A desmontagem de `0x1809–0x185F` corrigiu a interpretação temporal anterior: `0x1809–0x180C` limpa `C080`; `0x180E` lê `C112`; se `C112=2` e os contadores `C081/C082` mudaram, `0x181C–0x181F` reativa `C080=1`. O scheduler `0x06CE` continua retornando porque encontra `C0A0=0` após a conclusão da máquina, e não porque `0x180E` escreva `C080`.
+
+A próxima captura deve correlacionar quando `0x06CE` é chamado em relação aos quatro ciclos intermediários e ao handler `0x1809–0x181F`, sem liberar artificialmente `C0A0`.
