@@ -500,3 +500,9 @@ A causa operacional é que `tools/run_sms_capture.py` ainda contém pontos de es
 Foi executado um trace focalizado da região `0x06C0–0x07F5`, com acessos a `C080–C11F`, alvos de chamada `0x06CE` e `0x1809`, sem desbloqueios sintéticos. A captura japonesa com agendamento de frame/IRQ do Dega e entrada variável terminou em `0x4070` após 1200 blocos, com `FFFE=0x95` e `FFFF=0x82`, sem alcançar `0x4A8D`.
 
 O resultado confirma que a instrumentação atual é suficiente para acompanhar o scheduler, mas não resolve a transição: a execução continua no caminho A0/C203 antes de chegar à construção de `C280`. O wrapper `run_timed_capture.py` não aceita os parâmetros modernos de frame/IRQ; para novos probes, usar diretamente `run_sms_capture.py` ou atualizar o wrapper antes de reutilizá-lo. Nenhum desbloqueio ou valor sintético foi aplicado nesta etapa e nenhum snapshot foi aceito.
+
+## Entrega final obrigatória
+
+Além do patch PT-BR distribuível, o objetivo inclui gerar uma cópia privada da ROM fornecida pelo usuário com a tradução aplicada, para uso pessoal do próprio usuário. A cópia modificada completa e a ROM original nunca devem ser adicionadas ao GitHub, aos commits ou aos relatórios versionados; devem permanecer em diretório local ignorado e ser entregues separadamente apenas ao usuário quando a tradução estiver validada. O patch deve continuar sendo o artefato reproduzível principal, aplicado sobre a ROM original correspondente.
+
+A cópia traduzida só deve ser gerada depois de validar fontes, ponteiros, limites de mensagens, comandos especiais, bancos e checksum da ROM. Não considerar uma ROM com textos parcialmente substituídos ou com snapshot dinâmico não validado como entrega final.
