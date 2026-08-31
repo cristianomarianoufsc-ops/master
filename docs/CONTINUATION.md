@@ -644,3 +644,11 @@ A desassemblagem da rotina em `0x5270–0x5292`, alcançada no bloco 4981 com `C
 A captura dedicada confirmou uma passagem completa por `0x5270–0x5292`, com `C022=1`, quatro eventos de limpeza em `C280` e quinze em `C281`/região de inicialização, mas não houve entrada em `0x4A73` ou `0x4A8D`. O auditor manteve `status=risk` por `BREAKPOINT_NOT_REACHED`; nenhum snapshot foi aceito. A distinção é importante: `C206/C207` não nulos indicam progresso no dispatcher, mas não significam que o diálogo foi resolvido.
 
 O próximo passo é seguir o retorno de `0x5270` e o consumidor posterior de `C022`, identificando qual condição deveria selecionar a rotina `0x4A73` que chama `0x4BBD` para preencher `C022/C025–C028`, sem forçar a tabela C280.
+
+## Mapa estático dos consumidores de C022
+
+Foi criada `tools/find_ram_xrefs.py` para localizar referências absolutas Z80 a endereços de RAM, distinguindo leituras/escritas de byte e de palavra. Aplicada à ROM japonesa, a ferramenta encontrou leitores de `C022` em `0x4CF0`, `0x4E8E`, `0x4F20`, `0x4FA4`, `0x506F`, `0x4C1C` e `0x520F`, e escritas em `0x4A93`, `0x5275` e `0x4B3A`.
+
+O resultado confirma que `0x5275` é apenas um produtor intermediário: ele instala `C022` e limpa `C280`. A construção final de C280 começa em `0x4A73`, grava os campos em `0x4A93–0x4AC9` e usa os valores em `0x4C1C–0x4C68` para resolver máscaras e streams. Na captura real, `C022=1` foi observado em `0x5275`, mas não houve entrada em `0x4A73`; portanto, esse valor isolado não pode ser tratado como diálogo pronto.
+
+Os consumidores de `C022` agora formam uma lista concreta para o próximo trace, especialmente `0x4C1C`, `0x520F` e os chamadores que podem selecionar `0x4A73`. Nenhum patch narrativo será gerado a partir de referências estáticas sem validação dinâmica.
