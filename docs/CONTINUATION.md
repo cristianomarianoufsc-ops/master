@@ -426,3 +426,9 @@ A investigação deve agora concentrar-se no valor de `C119` antes de `0x4569` e
 No bloco 277, o caminho paginado chega a `0x4569` com `C119=0x01`, instalado explicitamente por `0x4530`. Após o retorno de `0x8B62` em `0x456C`, o código lê `C119=1`, compara com `4` e não toma o salto condicional. Em seguida instala `C119=5`, `C0A0=5`, `C11D=1` e copia 32 bytes de `0x46C0` para `C0E0`.
 
 A condição contra `4` não bloqueia o caminho nesta reprodução; ela seleciona a transição para o estado `5`. O próximo gargalo está depois de `0x4589`, em quem consome `C0E0` e os estados `C0A0/C11D`, ou na condição especial que produziria `C119=4`. O relatório está em `build/a0_c119_branch_probe_2026-08-30.md`.
+
+## Consumidor de C0E0 e transição para C0A0=4
+
+A desmontagem pós-`0x4589` localizou a rotina `0x078A–0x07CD`: ela copia 32 bytes a partir de `C0E0`, restaura DE, define `C0A0=4` e transforma os bytes de `C0E0` com `RLD/RRD`, máscaras e subtrações dependentes de D. Portanto, o bloco instalado pelo caminho `0x4569` é uma estrutura intermediária codificada, não texto direto.
+
+O trace também mostrou escritas em `C0E0/C0E1/C0FF` por `0x0718`, `0x071F`, `0x0721`, `0x0743`, `0x0792` e `0x07A4`, além da mudança de `C0A0` para `4`. O próximo probe deve capturar `0x078A–0x07D0`, o valor de D usado nas subtrações e o destino após o laço, seguindo a cadeia até o renderizador.
