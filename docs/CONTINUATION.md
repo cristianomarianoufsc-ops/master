@@ -494,3 +494,9 @@ Os relatórios estão em `build/z80_04cfd_alignment_usa_japan.json` e `build/z80
 O capturador foi executado contra `SpellCaster(USA,Europe).sms` usando o breakpoint regionalmente correto `0x4A9B` e a janela temporizada de entrada documentada. A execução não alcançou o alvo e terminou em `0x051F`, com `FFFF=0x8C`/`0x84` dependendo da configuração e campos `C022/C025–C028/C205/C215/C251/C280/C281` zerados. Isso não é um snapshot válido.
 
 A causa operacional é que `tools/run_sms_capture.py` ainda contém pontos de espera e fluxo específicos derivados da ROM japonesa; ele não pode ser usado diretamente na americana apenas trocando o endereço do breakpoint. O valor da ROM americana nesta etapa é estrutural: os alinhamentos Z80 confirmam que `0x4A9B` corresponde ao `0x4A8D` japonês e que `04CFD`/`04BBD` são homólogos. O próximo passo deve separar a configuração regional do capturador ou executar um harness com pontos de espera descobertos na versão americana, sem transportar os offsets japoneses.
+
+## Trace focalizado: ordenação C080/C0A0
+
+Foi executado um trace focalizado da região `0x06C0–0x07F5`, com acessos a `C080–C11F`, alvos de chamada `0x06CE` e `0x1809`, sem desbloqueios sintéticos. A captura japonesa com agendamento de frame/IRQ do Dega e entrada variável terminou em `0x4070` após 1200 blocos, com `FFFE=0x95` e `FFFF=0x82`, sem alcançar `0x4A8D`.
+
+O resultado confirma que a instrumentação atual é suficiente para acompanhar o scheduler, mas não resolve a transição: a execução continua no caminho A0/C203 antes de chegar à construção de `C280`. O wrapper `run_timed_capture.py` não aceita os parâmetros modernos de frame/IRQ; para novos probes, usar diretamente `run_sms_capture.py` ou atualizar o wrapper antes de reutilizá-lo. Nenhum desbloqueio ou valor sintético foi aplicado nesta etapa e nenhum snapshot foi aceito.
