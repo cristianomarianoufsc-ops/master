@@ -1,0 +1,1374 @@
+{
+  "reference": "/tmp/usa_bank21.asm",
+  "target": "/tmp/jp_bank21.asm",
+  "reference_resolver": "0x5beb",
+  "target_resolver": "0x5c16",
+  "reference_calls": 15,
+  "target_calls": 15,
+  "matches": [
+    {
+      "reference_pc": 23588,
+      "target_hits": [
+        23631,
+        24688
+      ],
+      "unique": false,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 14684,
+          "pc": 23573
+        },
+        {
+          "register": "DE",
+          "value": 44885,
+          "pc": 23585
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "DE",
+            "value": 44885,
+            "pc": 23628
+          }
+        ],
+        [
+          {
+            "register": "DE",
+            "value": 28211,
+            "pc": 24685
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          237,
+          4
+        ],
+        [
+          237,
+          4
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          52,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          58,
+          3
+        ],
+        [
+          254,
+          2
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          33,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 23629,
+      "target_hits": [
+        23672
+      ],
+      "unique": true,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 49730,
+          "pc": 23616
+        },
+        {
+          "register": "HL",
+          "value": 49664,
+          "pc": 23621
+        },
+        {
+          "register": "DE",
+          "value": 45348,
+          "pc": 23626
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "HL",
+            "value": 49730,
+            "pc": 23659
+          },
+          {
+            "register": "HL",
+            "value": 49664,
+            "pc": 23664
+          },
+          {
+            "register": "DE",
+            "value": 45348,
+            "pc": 23669
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          235,
+          1
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          175,
+          1
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          58,
+          3
+        ],
+        [
+          183,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_pc": 23714,
+      "target_hits": [
+        23757
+      ],
+      "unique": true,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 49664,
+          "pc": 23689
+        },
+        {
+          "register": "DE",
+          "value": 45608,
+          "pc": 23711
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "HL",
+            "value": 49664,
+            "pc": 23732
+          },
+          {
+            "register": "DE",
+            "value": 45608,
+            "pc": 23754
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          213,
+          1
+        ],
+        [
+          42,
+          3
+        ],
+        [
+          38,
+          2
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          110,
+          1
+        ],
+        [
+          38,
+          2
+        ],
+        [
+          41,
+          1
+        ],
+        [
+          209,
+          1
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          126,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_pc": 23799,
+      "target_hits": [
+        23842
+      ],
+      "unique": true,
+      "reference_pointers": [
+        {
+          "register": "DE",
+          "value": 47594,
+          "pc": 23796
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "DE",
+            "value": 47594,
+            "pc": 23839
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          237,
+          4
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          52,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          58,
+          3
+        ],
+        [
+          254,
+          2
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          50,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 23841,
+      "target_hits": [
+        23884
+      ],
+      "unique": true,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 49730,
+          "pc": 23828
+        },
+        {
+          "register": "HL",
+          "value": 49664,
+          "pc": 23833
+        },
+        {
+          "register": "DE",
+          "value": 47797,
+          "pc": 23838
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "HL",
+            "value": 49730,
+            "pc": 23871
+          },
+          {
+            "register": "HL",
+            "value": 49664,
+            "pc": 23876
+          },
+          {
+            "register": "DE",
+            "value": 47797,
+            "pc": 23881
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          235,
+          1
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          175,
+          1
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          58,
+          3
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          32,
+          2
+        ],
+        [
+          203,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_pc": 23913,
+      "target_hits": [
+        23956,
+        25298
+      ],
+      "unique": false,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 49664,
+          "pc": 23891
+        },
+        {
+          "register": "DE",
+          "value": 48469,
+          "pc": 23910
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "HL",
+            "value": 49664,
+            "pc": 23934
+          },
+          {
+            "register": "DE",
+            "value": 48469,
+            "pc": 23953
+          }
+        ],
+        [
+          {
+            "register": "HL",
+            "value": 25373,
+            "pc": 25282
+          },
+          {
+            "register": "DE",
+            "value": 30877,
+            "pc": 25295
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          58,
+          3
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          175,
+          1
+        ],
+        [
+          50,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 24083,
+      "target_hits": [
+        24126,
+        24724
+      ],
+      "unique": false,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 49730,
+          "pc": 24075
+        },
+        {
+          "register": "DE",
+          "value": 26684,
+          "pc": 24080
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "HL",
+            "value": 49730,
+            "pc": 24118
+          },
+          {
+            "register": "DE",
+            "value": 26727,
+            "pc": 24123
+          }
+        ],
+        [
+          {
+            "register": "HL",
+            "value": 49730,
+            "pc": 24704
+          },
+          {
+            "register": "HL",
+            "value": 49730,
+            "pc": 24716
+          },
+          {
+            "register": "DE",
+            "value": 28487,
+            "pc": 24721
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          235,
+          1
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          175,
+          1
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          50,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 24228,
+      "target_hits": [
+        24271
+      ],
+      "unique": true,
+      "reference_pointers": [
+        {
+          "register": "DE",
+          "value": 27184,
+          "pc": 24225
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "DE",
+            "value": 27227,
+            "pc": 24268
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          241,
+          1
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          175,
+          1
+        ],
+        [
+          50,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 24645,
+      "target_hits": [
+        23631,
+        24688
+      ],
+      "unique": false,
+      "reference_pointers": [
+        {
+          "register": "DE",
+          "value": 28168,
+          "pc": 24642
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "DE",
+            "value": 44885,
+            "pc": 23628
+          }
+        ],
+        [
+          {
+            "register": "DE",
+            "value": 28211,
+            "pc": 24685
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          237,
+          4
+        ],
+        [
+          237,
+          4
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          52,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          58,
+          3
+        ],
+        [
+          254,
+          2
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          33,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 24681,
+      "target_hits": [
+        24126,
+        24724
+      ],
+      "unique": false,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 49730,
+          "pc": 24661
+        },
+        {
+          "register": "HL",
+          "value": 49730,
+          "pc": 24673
+        },
+        {
+          "register": "DE",
+          "value": 28444,
+          "pc": 24678
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "HL",
+            "value": 49730,
+            "pc": 24118
+          },
+          {
+            "register": "DE",
+            "value": 26727,
+            "pc": 24123
+          }
+        ],
+        [
+          {
+            "register": "HL",
+            "value": 49730,
+            "pc": 24704
+          },
+          {
+            "register": "HL",
+            "value": 49730,
+            "pc": 24716
+          },
+          {
+            "register": "DE",
+            "value": 28487,
+            "pc": 24721
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          235,
+          1
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          175,
+          1
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          50,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 24776,
+      "target_hits": [
+        24819,
+        25045
+      ],
+      "unique": false,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 49664,
+          "pc": 24754
+        },
+        {
+          "register": "DE",
+          "value": 28840,
+          "pc": 24773
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "HL",
+            "value": 49664,
+            "pc": 24797
+          },
+          {
+            "register": "DE",
+            "value": 28883,
+            "pc": 24816
+          }
+        ],
+        [
+          {
+            "register": "HL",
+            "value": 49664,
+            "pc": 25023
+          },
+          {
+            "register": "DE",
+            "value": 29241,
+            "pc": 25042
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          213,
+          1
+        ],
+        [
+          42,
+          3
+        ],
+        [
+          38,
+          2
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          126,
+          1
+        ],
+        [
+          209,
+          1
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          33,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 25002,
+      "target_hits": [
+        24819,
+        25045
+      ],
+      "unique": false,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 49664,
+          "pc": 24980
+        },
+        {
+          "register": "DE",
+          "value": 29198,
+          "pc": 24999
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "HL",
+            "value": 49664,
+            "pc": 24797
+          },
+          {
+            "register": "DE",
+            "value": 28883,
+            "pc": 24816
+          }
+        ],
+        [
+          {
+            "register": "HL",
+            "value": 49664,
+            "pc": 25023
+          },
+          {
+            "register": "DE",
+            "value": 29241,
+            "pc": 25042
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          213,
+          1
+        ],
+        [
+          42,
+          3
+        ],
+        [
+          38,
+          2
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          126,
+          1
+        ],
+        [
+          209,
+          1
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          33,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 25255,
+      "target_hits": [
+        23956,
+        25298
+      ],
+      "unique": false,
+      "reference_pointers": [
+        {
+          "register": "HL",
+          "value": 25330,
+          "pc": 25239
+        },
+        {
+          "register": "DE",
+          "value": 30834,
+          "pc": 25252
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "HL",
+            "value": 49664,
+            "pc": 23934
+          },
+          {
+            "register": "DE",
+            "value": 48469,
+            "pc": 23953
+          }
+        ],
+        [
+          {
+            "register": "HL",
+            "value": 25373,
+            "pc": 25282
+          },
+          {
+            "register": "DE",
+            "value": 30877,
+            "pc": 25295
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          58,
+          3
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          205,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          34,
+          3
+        ],
+        [
+          175,
+          1
+        ],
+        [
+          50,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_pc": 25379,
+      "target_hits": [
+        25422
+      ],
+      "unique": true,
+      "reference_pointers": [
+        {
+          "register": "DE",
+          "value": 32,
+          "pc": 25363
+        },
+        {
+          "register": "DE",
+          "value": 26115,
+          "pc": 25376
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "DE",
+            "value": 32,
+            "pc": 25406
+          },
+          {
+            "register": "DE",
+            "value": 26158,
+            "pc": 25419
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          235,
+          1
+        ],
+        [
+          126,
+          1
+        ],
+        [
+          183,
+          1
+        ],
+        [
+          200,
+          1
+        ],
+        [
+          71,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          126,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          183,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          229,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_pc": 25457,
+      "target_hits": [
+        25500
+      ],
+      "unique": true,
+      "reference_pointers": [
+        {
+          "register": "DE",
+          "value": 32,
+          "pc": 25439
+        },
+        {
+          "register": "DE",
+          "value": 5,
+          "pc": 25447
+        },
+        {
+          "register": "DE",
+          "value": 25699,
+          "pc": 25454
+        }
+      ],
+      "target_pointers": [
+        [
+          {
+            "register": "DE",
+            "value": 32,
+            "pc": 25482
+          },
+          {
+            "register": "DE",
+            "value": 5,
+            "pc": 25490
+          },
+          {
+            "register": "DE",
+            "value": 25742,
+            "pc": 25497
+          }
+        ]
+      ],
+      "window": 12,
+      "signature": [
+        [
+          205,
+          3
+        ],
+        [
+          235,
+          1
+        ],
+        [
+          126,
+          1
+        ],
+        [
+          183,
+          1
+        ],
+        [
+          200,
+          1
+        ],
+        [
+          71,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          197,
+          1
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ]
+      ]
+    }
+  ]
+}

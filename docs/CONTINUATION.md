@@ -520,3 +520,11 @@ A ferramenta `tools/extract_handler_windows.py` foi criada para extrair janelas 
 Foram encontrados 15 candidatos japoneses e 15 candidatos americanos no banco 21. Isso confirma que o conjunto de handlers narrativos é estruturalmente paralelo, mas não é seguro procurar somente pelo endereço japonês. Os relatórios estão em `build/japan_handler_windows.md` e `build/usa_handler_windows.md`.
 
 Os candidatos americanos incluem chamadas que gravam `C223/C238` e chamam `0x5BEB`, enquanto os japoneses fazem o equivalente com `0x5C16`. O próximo passo é alinhar esses 15 candidatos por fingerprints Z80 e extrair os ponteiros de origem (`DE/HL`) de cada handler, começando pelos pares `0x5C4F↔0x5C24` e `0x5D22↔0x5C4D`.
+
+## Mapa automático dos handlers de diálogo
+
+Foi criada `tools/map_dialog_handlers.py` para parear chamadas aos resolvedores regionais e extrair os valores imediatos de `HL/DE` próximos a cada chamada. Aplicada ao banco 21, a ferramenta encontrou 15 chamadas americanas ao resolvedor `0x5BEB` e 15 chamadas japonesas ao resolvedor `0x5C16`; todas as 15 possuem pelo menos um match estrutural, e 7 foram matches únicos com janela de 12 instruções.
+
+Entre os matches únicos, foram confirmados os pares `0x5C4D→0x5C78`, `0x5CA2→0x5CCD`, `0x5CF7→0x5D22`, `0x5D21→0x5D4C`, `0x5EA4→0x5ECF`, `0x6323→0x634E` e `0x6371→0x639C`. Os quatro primeiros preservam ponteiros de origem idênticos (`B124`, `B228`, `B9EA`, `BAB5`), enquanto os três últimos mostram deslocamentos consistentes de `+0x2B` (`6A30→6A5B`, `6603→662E`, `6463→648E`). Isso separa dados compartilhados de regiões deslocadas e é a primeira base automatizada para construir o mapa código→stream.
+
+O relatório completo está em `build/dialog_handler_map_usa_japan.json`; as janelas de contexto estão em `build/usa_handler_windows.md` e `build/japan_handler_windows.md`. O próximo passo é extrair os streams apontados por esses pares, classificar terminadores/comandos e localizar quais são narrativos antes de editar qualquer byte.
