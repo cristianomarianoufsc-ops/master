@@ -472,3 +472,11 @@ A ROM japonesa recém-recebida foi comparada byte a byte com `SpellCaster(USA,Eu
 As diferenças estão concentradas nos bancos regionais/localizados. O banco 21 tem somente 16,1% de igualdade byte a byte, explicando por que assinaturas literais de 32 bytes não alinharam as tabelas de diálogo. Ainda assim, as rotinas homólogas foram identificadas: a leitura americana equivalente a `04BBD` está em `0x4BCB` e a equivalente a `04CFD` em `0x4D0B`, contra `0x4BBD` e `0x4CFD` na japonesa. O relatório detalhado está em `build/usa_japan_comparison.md`.
 
 Conclusão operacional: a ROM americana é uma referência muito valiosa e torna o projeto mais fácil, mas o alinhamento do banco 21 deve usar assinaturas de opcode/controle de fluxo com operandos mascarados, não comparação literal. Nenhuma ROM foi modificada.
+
+## Alinhamento estrutural Z80 entre versões
+
+Foi criada `tools/align_z80_signatures.py`, que decodifica rotinas Z80 e compara fingerprints formados por primeiro opcode e tamanho da instrução, ignorando operandos regionais como endereços, imediatos e deslocamentos. A ferramenta é apropriada para localizar código homólogo quando a comparação literal de bytes falha; seus resultados continuam sendo candidatos e precisam de revisão.
+
+Aplicação no banco 21: a rotina americana em `0x4BCB–0x4C00` foi comparada com a japonesa em `0x4BBD–0x4BF5`, usando janelas de 10 instruções. Foram decodificadas 41 instruções americanas e 42 japonesas; 32 janelas tiveram correspondência única. O relatório está em `build/z80_b21_alignment_usa_japan.json`. Isso confirma automaticamente o deslocamento estrutural da rotina equivalente a `04BBD` e valida a estratégia de ignorar operandos variáveis.
+
+O próximo passo é aplicar a ferramenta a blocos maiores do banco 21, incluindo a rotina equivalente a `04CFD`, os chamadores de `C022/C205/C215/C251` e as regiões de mensagens. As correspondências únicas devem ser usadas para mapear funções e tabelas; não devem ainda ser usadas para gerar patch sem confirmação dinâmica.

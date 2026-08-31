@@ -1,0 +1,1649 @@
+{
+  "reference": "input/SpellCaster(USA,Europe).sms",
+  "target": "input/KujakuOu(Japan).sms",
+  "reference_bank": 21,
+  "target_bank": 21,
+  "reference_range": [
+    19403,
+    19456
+  ],
+  "target_range": [
+    19389,
+    19445
+  ],
+  "window": 10,
+  "matches": [
+    {
+      "reference_cpu": 19403,
+      "reference_file": 347083,
+      "target_hits": [
+        19389
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          175,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          14,
+          2
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19404,
+      "reference_file": 347084,
+      "target_hits": [
+        19390
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          35,
+          1
+        ],
+        [
+          175,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          14,
+          2
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19405,
+      "reference_file": 347085,
+      "target_hits": [
+        19391
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          175,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          14,
+          2
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19406,
+      "reference_file": 347086,
+      "target_hits": [
+        19392
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          8,
+          1
+        ],
+        [
+          14,
+          2
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          8,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19407,
+      "reference_file": 347087,
+      "target_hits": [
+        19393
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          14,
+          2
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          177,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19409,
+      "reference_file": 347089,
+      "target_hits": [
+        19395
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          177,
+          1
+        ],
+        [
+          8,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19410,
+      "reference_file": 347090,
+      "target_hits": [
+        19396
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          177,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          35,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19411,
+      "reference_file": 347091,
+      "target_hits": [
+        19397
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          177,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          203,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19412,
+      "reference_file": 347092,
+      "target_hits": [
+        19398
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          177,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          16,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19413,
+      "reference_file": 347093,
+      "target_hits": [
+        19399
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          177,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          8,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19414,
+      "reference_file": 347094,
+      "target_hits": [
+        19400
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          177,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          201,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19415,
+      "reference_file": 347095,
+      "target_hits": [
+        19401
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          40,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          177,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          70,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19417,
+      "reference_file": 347097,
+      "target_hits": [
+        19403
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          8,
+          1
+        ],
+        [
+          177,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19418,
+      "reference_file": 347098,
+      "target_hits": [
+        19404
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          177,
+          1
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          94,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19419,
+      "reference_file": 347099,
+      "target_hits": [
+        19405
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          8,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19420,
+      "reference_file": 347100,
+      "target_hits": [
+        19406
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          35,
+          1
+        ],
+        [
+          203,
+          2
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19421,
+      "reference_file": 347101,
+      "target_hits": [
+        19407
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          203,
+          2
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19423,
+      "reference_file": 347103,
+      "target_hits": [
+        19409
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          16,
+          2
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19425,
+      "reference_file": 347105,
+      "target_hits": [
+        19411
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          8,
+          1
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19426,
+      "reference_file": 347106,
+      "target_hits": [
+        19412
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          201,
+          1
+        ],
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19427,
+      "reference_file": 347107,
+      "target_hits": [
+        19413
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          70,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19428,
+      "reference_file": 347108,
+      "target_hits": [
+        19414
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          35,
+          1
+        ],
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          217,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19429,
+      "reference_file": 347109,
+      "target_hits": [
+        19415
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          94,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          18,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19430,
+      "reference_file": 347110,
+      "target_hits": [
+        19416
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          35,
+          1
+        ],
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19431,
+      "reference_file": 347111,
+      "target_hits": [
+        19417
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          86,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ],
+        [
+          217,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19432,
+      "reference_file": 347112,
+      "target_hits": [
+        19418
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          35,
+          1
+        ],
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          35,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19433,
+      "reference_file": 347113,
+      "target_hits": [
+        19419
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          26,
+          1
+        ],
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          16,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19434,
+      "reference_file": 347114,
+      "target_hits": [
+        19420
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          166,
+          1
+        ],
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          201,
+          1
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19435,
+      "reference_file": 347115,
+      "target_hits": [
+        19421
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          40,
+          2
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          62,
+          2
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19437,
+      "reference_file": 347117,
+      "target_hits": [
+        19423
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          62,
+          2
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          50,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19439,
+      "reference_file": 347119,
+      "target_hits": [
+        19425
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          217,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          33,
+          3
+        ]
+      ]
+    },
+    {
+      "reference_cpu": 19440,
+      "reference_file": 347120,
+      "target_hits": [
+        19426
+      ],
+      "unique": true,
+      "window_instructions": 10,
+      "signature": [
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          1
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          35,
+          1
+        ],
+        [
+          16,
+          2
+        ],
+        [
+          201,
+          1
+        ],
+        [
+          62,
+          2
+        ],
+        [
+          50,
+          3
+        ],
+        [
+          33,
+          3
+        ],
+        [
+          17,
+          3
+        ]
+      ]
+    }
+  ]
+}
