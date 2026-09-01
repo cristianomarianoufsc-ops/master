@@ -728,3 +728,9 @@ O trace de opcode mostrou uma passagem única pela rotina de inicialização, en
 Foi criada `tools/summarize_verified_streams.py` para resumir apenas entradas classificadas como `text_or_glyph_stream`. Nas ROMs japonesa e americana, o resultado foi idêntico: somente dois candidatos na tabela `0xB9EA`, ambos com cinco bytes e terminador `FF`: `0xBAAB = 00 1C 33 1D FF` e `0xBAB0 = 00 37 00 38 FF`.
 
 Como esses streams são curtos, não diferem entre as versões regionalizadas e não foram alcançados dinamicamente pelo executor, eles não constituem ainda diálogos narrativos verificáveis. A ferramenta deve ser usada como filtro de auditoria, não como autorização de patch. O próximo passo continua sendo capturar o caminho runtime que alimenta C223/C238 e comparar os códigos consumidos pelo loop `0x96CA–0x9779` antes de selecionar qualquer texto para tradução.
+
+## Auditoria runtime de C223/C238
+
+Foi criada `tools/analyze_runtime_text_reads.py` para separar eventos de estado do decoder de texto. Aplicada ao trace A0 de 12000 blocos, ela encontrou somente seis eventos: três escritas em C223 e três em C238, todas com valor `0`, nos pontos de inicialização `0x00AD`, `0x4939` e `0x4496`. Não houve eventos no loop de texto `0x96CA–0x9779`, nem leituras úteis de C280/C281.
+
+Essa evidência descarta, para essa execução, a hipótese de que os streams classificados estaticamente já estejam sendo consumidos como narrativa. O pipeline de tradução deve continuar bloqueado para diálogos até que C223/C238 recebam valores não nulos e o decoder seja alcançado dinamicamente. O próximo probe deve concentrar-se na rotina que deveria preencher C223/C238 após a conclusão do loader de objetos.
