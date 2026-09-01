@@ -696,3 +696,9 @@ A continuação dinâmica confirmou uma nova atualização em `C20A=1` e `C20E=0
 A rotina chamada após o armamento de C20A foi desassemblada. `0x5B78` seleciona o banco `0x13`, usa C23A como índice na tabela `0xBA8E`, inicializa C23D/C23F e salva em C23B o ponteiro para a sequência de registros. `0x5BAF` implementa a espera entre elementos, decrementando C23F; quando a espera termina, `0x5BBF` lê registros `(B,C,DE,ponteiro)`, chama `0x5AD9`, avança C23D e rearma C23F a partir de C240. Ao concluir, ele seta o bit 0 de C204 para operações comuns ou o bit 1 para C23A=2.
 
 O probe dinâmico dessa fase excedeu o limite operacional antes de gravar o relatório; ele foi interrompido sem alterar a ROM ou o modelo. A desassemblagem é usada somente como mapa de hipóteses. O próximo teste deve usar uma janela de execução menor ou um ponto inicial posterior, quando disponível, e correlacionar C204/C23A/C23D/C23F com as escritas de VRAM e com o scheduler. Nenhuma conclusão de diálogo ou patch narrativo foi derivada dessa tentativa.
+
+## Consumidor 0x5AD9: cópia de blocos de objeto
+
+A rotina `0x5AD9` foi desassemblada. Ela executa `LDIR` com `B=0`, portanto copia 256 bytes por segmento, avança o destino em `0x40` e repete conforme o contador externo em B. Seu chamador `0x5BBF` fornece registros da tabela de objetos e depois sinaliza C204.
+
+Isso confirma que a fase C23A/C23B é um loader de dados gráficos/objetos, não um decoder de stream narrativo: os ponteiros e strides são de blocos de 64 bytes, e a rotina não lê C022/C025–C028 nem acessa as tabelas `ABBB–ACD5` usadas pelo construtor de diálogo. O próximo passo deve seguir o sinal de C204 de volta ao scheduler e localizar a transição que, após o carregamento do objeto, reintroduz o estado necessário para `0x4A73`.
