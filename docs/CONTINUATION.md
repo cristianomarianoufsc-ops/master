@@ -746,3 +746,9 @@ Esse resultado evita uma conclusão incorreta de que os demais escritores são c
 Foi executada uma captura de 16000 blocos com uma segunda pressão de START na janela dos blocos 15165–15184, imediatamente após a primeira ocorrência do ciclo em `0x412D`. O resultado permaneceu em `PC=0x4073`, sem registro de entrada em `0x4A73` ou `0x4A8D`.
 
 A amostra confirma que o input adicional não desbloqueia a transição. Após `C204=2` em `0x54C3` no bloco 15199, o fluxo volta aos ciclos periódicos (`C203` alternando 0/1), e C223/C238 continuam escritos apenas com zero nos pontos de inicialização. Também não houve leituras de C280/C281. Portanto, a barreira é lógica/estado do scheduler, não uma confirmação de controle ausente.
+
+## Probe dinâmico dos handlers de cena
+
+Os seis escritores candidatos de C223/C238 (`0x53F2`, `0x5716`, `0x599F`, `0x5DED`, `0x615B` e `0x624D`) foram adicionados como alvos explícitos em uma captura de 15500 blocos. Nenhum deles foi alcançado; o único alvo novo registrado foi `0x412D`, uma vez, no bloco 531, com retorno `0x00EB` e `FFFF=0x13`.
+
+A execução continuou alternando C203 nos pontos `0x432F/0x403F` e repetindo C204=2 em `0x54C3`, enquanto C206 foi atualizado por rotinas de A0 para `0x8080`, `0x8282`, `0x8383`, `0x8787`, `0x8A8A` e `0x8E8E`. C223, C238 e C242 não receberam valores não nulos. Isso confirma que a execução atual permanece em uma cadeia de tarefas A0/loader e nem sequer despacha para os handlers de cena; o próximo alvo deve ser a condição que encerra a tarefa A0 ou a rotina que preenche o estado de conclusão, não a tradução dos streams.
