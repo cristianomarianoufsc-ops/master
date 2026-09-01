@@ -676,3 +676,11 @@ A chamada a `0x520F` ocorreu com `C022=1`, `C206=0x8383`, `C207=0x80` e `C203=0`
 Com o trace de destinos completo, a sequência dinâmica foi identificada sem inferência: em `C206=0x8080`, o byte `0xCB` levou a `0x5270`; em `C206=0x8082`, o byte `0x08` levou a `0x520C`; em `C206=0x8083`, o byte `0xC9` levou a `0x52FE`; e em `C206=0x8087`, o byte `0xDD` levou a `0x50FD`. Todos os handlers retornaram para `0x401A`, sem entrada em `0x4A73`/`0x4A8D`.
 
 Essa sequência delimita o próximo ponto de investigação: os handlers `0x52FE` e `0x50FD` são os únicos destinos novos ainda não interpretados nesse trecho e podem atualizar o estado que habilita a construção final. O byte `0x08` não chama `0x520F` diretamente; ele cai em `0x520C`, que prepara o ponteiro C206 antes do retorno, enquanto `0x520F` é alcançado por uma chamada subsequente do dispatcher. A distinção foi registrada para evitar atribuir o efeito ao handler errado.
+
+## Progressão estendida de C206 e estados de tarefa
+
+A captura de 15000 blocos acompanhou a progressão do ponteiro C206 e dos estados auxiliares. Foram observadas as entradas `0x8080` com opcode `0xCB`, `0x8082` com `0x08`, `0x8083` com `0xC9`, `0x8087` com `0xDD` e, posteriormente, `0x808A` com `0xC9`. Os handlers conhecidos retornaram ao dispatcher; a execução permaneceu sem `0x4A73`/`0x4A8D`.
+
+O handler `0x50FD` foi confirmado como atualização de estado: grava `C200=0x10`, lê um ponteiro de dois bytes e salva-o em `C218`, avançando C206. No trace, `C218` percorreu a sequência `0x10,0x0F,0x0E,...,0x00`, enquanto `C200` voltou a zero em `0x5456`; mais tarde, `C200=0x02` foi observado em `0x50C1`. A sequência mostra uma máquina de estados que consome uma lista de tarefas e aguarda/contabiliza parâmetros, não um fluxo direto para texto.
+
+O auditor não liberou a captura como snapshot: o breakpoint `0x4A8D` continua não alcançado. O próximo passo é desassemblar os chamadores de `0x5456`, `0x544E` e `0x50C1`, correlacionando `C218` com a tabela de objetos e verificando se a tarefa `0x808A` é a que arma a seleção de diálogo.
