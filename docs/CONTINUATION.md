@@ -690,3 +690,9 @@ O auditor não liberou a captura como snapshot: o breakpoint `0x4A8D` continua n
 A captura estendida de 30000 blocos foi concluída pelo executor; o timeout ocorreu apenas no pós-processamento do shell, e o relatório JSON permaneceu íntegro. O dispatcher alcançou `0x50C1` no bloco 14937 após `C218` percorrer `0x10` até `0x00`. Nesse handler, `C200` foi armado com `0x02`, os bytes apontados foram copiados para `C208`, `C209` e `C23A`, e C206 avançou para `0x808C`.
 
 A continuação dinâmica confirmou uma nova atualização em `C20A=1` e `C20E=0x1E` no bloco 15199, enquanto `C280` ainda não foi escrito e `0x4A73/0x4A8D` não foram alcançados. O resultado é consistente com uma fase de temporização/objeto que antecede o diálogo, não com falha da IRQ. O auditor continua exigindo cautela porque o breakpoint narrativo não foi alcançado.
+
+## Estrutura do loader de objetos 0x5B78–0x5BFF
+
+A rotina chamada após o armamento de C20A foi desassemblada. `0x5B78` seleciona o banco `0x13`, usa C23A como índice na tabela `0xBA8E`, inicializa C23D/C23F e salva em C23B o ponteiro para a sequência de registros. `0x5BAF` implementa a espera entre elementos, decrementando C23F; quando a espera termina, `0x5BBF` lê registros `(B,C,DE,ponteiro)`, chama `0x5AD9`, avança C23D e rearma C23F a partir de C240. Ao concluir, ele seta o bit 0 de C204 para operações comuns ou o bit 1 para C23A=2.
+
+O probe dinâmico dessa fase excedeu o limite operacional antes de gravar o relatório; ele foi interrompido sem alterar a ROM ou o modelo. A desassemblagem é usada somente como mapa de hipóteses. O próximo teste deve usar uma janela de execução menor ou um ponto inicial posterior, quando disponível, e correlacionar C204/C23A/C23D/C23F com as escritas de VRAM e com o scheduler. Nenhuma conclusão de diálogo ou patch narrativo foi derivada dessa tentativa.
