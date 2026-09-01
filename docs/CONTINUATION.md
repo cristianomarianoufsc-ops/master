@@ -752,3 +752,11 @@ A amostra confirma que o input adicional não desbloqueia a transição. Após `
 Os seis escritores candidatos de C223/C238 (`0x53F2`, `0x5716`, `0x599F`, `0x5DED`, `0x615B` e `0x624D`) foram adicionados como alvos explícitos em uma captura de 15500 blocos. Nenhum deles foi alcançado; o único alvo novo registrado foi `0x412D`, uma vez, no bloco 531, com retorno `0x00EB` e `FFFF=0x13`.
 
 A execução continuou alternando C203 nos pontos `0x432F/0x403F` e repetindo C204=2 em `0x54C3`, enquanto C206 foi atualizado por rotinas de A0 para `0x8080`, `0x8282`, `0x8383`, `0x8787`, `0x8A8A` e `0x8E8E`. C223, C238 e C242 não receberam valores não nulos. Isso confirma que a execução atual permanece em uma cadeia de tarefas A0/loader e nem sequer despacha para os handlers de cena; o próximo alvo deve ser a condição que encerra a tarefa A0 ou a rotina que preenche o estado de conclusão, não a tradução dos streams.
+
+## Causa provável do bloqueio em 0x406C
+
+A leitura correta do trecho `0x40F0–0x415F` esclareceu a transição. O estágio inicial copia dez blocos por meio de `0x5AD9`, configura `C203=2` e, em `0x4130–0x4143`, seleciona a tabela de tarefas por `C202`, gravando o primeiro ponteiro em C206. Em seguida, `0x4146–0x415F` grava `DD04=0x82`, chama `0x406C`, chama `0x04F5` e `0x0758`, ativa o bit 4 de C200 e define `C218=8`.
+
+A rotina `0x406C` é um polling explícito: lê C203 e C008, executando `JR NZ,0x406C` enquanto `(C203 | C008) != 0`. O trace mostra que o caminho `0x4125–0x412A` deixa C008=2 antes de entrar nesse polling; as escritas posteriores em C203 alternam entre 1 e 0, mas não há evidência de C008 chegar a zero nesse estágio. Assim, o bloqueio observado não é a ausência de uma nova pressão de controle: é a condição de frame/IRQ representada por C008 que não está sendo liberada pelo modelo atual.
+
+Esse achado ainda não autoriza um patch na ROM. O próximo experimento deve capturar o handler que escreve C008=0, incluindo PC, IFF1, vetor de IRQ e banco ativo, e reproduzir somente essa transição de hardware no capturador. Qualquer liberação sintética deve ser marcada como diagnóstica e não pode ser usada para extrair streams narrativos.
