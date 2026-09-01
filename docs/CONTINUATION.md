@@ -702,3 +702,11 @@ O probe dinâmico dessa fase excedeu o limite operacional antes de gravar o rela
 A rotina `0x5AD9` foi desassemblada. Ela executa `LDIR` com `B=0`, portanto copia 256 bytes por segmento, avança o destino em `0x40` e repete conforme o contador externo em B. Seu chamador `0x5BBF` fornece registros da tabela de objetos e depois sinaliza C204.
 
 Isso confirma que a fase C23A/C23B é um loader de dados gráficos/objetos, não um decoder de stream narrativo: os ponteiros e strides são de blocos de 64 bytes, e a rotina não lê C022/C025–C028 nem acessa as tabelas `ABBB–ACD5` usadas pelo construtor de diálogo. O próximo passo deve seguir o sinal de C204 de volta ao scheduler e localizar a transição que, após o carregamento do objeto, reintroduz o estado necessário para `0x4A73`.
+
+## C204 e as rotinas de inicialização
+
+O mapa estático de C204 encontrou dois escritores no banco 21: `0x40FA` e `0x412D`. A primeira rotina prepara dados de inicialização, grava C203=1 e C204=1 e chama o polling de `0x406C`; a segunda repete a sequência com C203=2/C204=2, seleciona um ponteiro a partir de C202 na tabela do banco 22, grava-o em C206 e arma C200 bit 4 com C218=8.
+
+O trace curto confirmou C204=1 em `0x40FD`, mas o alvo `0x406C` foi registrado repetidamente porque a instrumentação de `call_target` trata cada fetch do endereço como entrada; essa repetição não deve ser interpretada como múltiplas chamadas. O resultado ainda é útil para confirmar o armamento inicial, mas exige uma distinção futura entre entrada de CALL e execução do corpo para medir contagens com precisão.
+
+A cadeia sugere que a transição posterior para diálogo depende do scheduler consumir a inicialização de C204=2 e o ponteiro selecionado em C206, não de forçar C280. O próximo probe deve registrar apenas as entradas reais nos escritores `0x40FA/0x412D` e nas rotinas `0x5B78/0x5BAF`, usando retornos de pilha para eliminar falsos múltiplos de trace.
