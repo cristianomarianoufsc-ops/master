@@ -716,3 +716,9 @@ A cadeia sugere que a transição posterior para diálogo depende do scheduler c
 Foi criada `tools/deduplicate_call_trace.py` para reduzir eventos `call_target` por `(run, PC, return_address)`. Aplicada ao trace de C204, a ferramenta reduziu 29.954 registros brutos a 19 entradas únicas: quatro chamadas distintas a `0x5B3E`, uma entrada em `0x40FA` e quatorze chamadas reais a `0x406C` em blocos consecutivos. Assim, os registros repetidos em `0x406C` dentro de um mesmo bloco eram fetches recorrentes, enquanto a mudança do bloco confirma chamadas sucessivas do scheduler.
 
 O resultado melhora a auditoria de temporização, mas não transforma o trace em snapshot válido: o breakpoint `0x4A8D` não foi alcançado. O deduplicador deve ser usado junto do auditor para distinguir progresso entre frames de repetição interna dentro de uma mesma chamada.
+
+## Probe refinado das transições C204
+
+A execução curta com opcode fetch limitado à janela `0x40FA–0x4146` confirmou a sequência temporal: no bloco 285, `0x40FA` grava `C203=1` e `C204=1`; durante a preparação, a rotina copia dados e chama `0x5B3E`. No bloco 531, `0x412D` grava `C203=2` e `C204=2`, seleciona o ponteiro de tarefa via C202 e grava `C206=0x8080` em `0x4146`.
+
+O trace de opcode mostrou uma passagem única pela rotina de inicialização, enquanto o polling em `0x406C` ocorre nos blocos seguintes. A distinção confirma que C204 é um marcador de fase consumido pelo scheduler e que C206 só recebe a tabela A0 depois da segunda fase. Esse resultado substitui a contagem bruta anterior, que confundia fetches repetidos com chamadas múltiplas.
