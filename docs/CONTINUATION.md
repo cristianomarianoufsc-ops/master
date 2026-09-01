@@ -652,3 +652,9 @@ Foi criada `tools/find_ram_xrefs.py` para localizar referências absolutas Z80 a
 O resultado confirma que `0x5275` é apenas um produtor intermediário: ele instala `C022` e limpa `C280`. A construção final de C280 começa em `0x4A73`, grava os campos em `0x4A93–0x4AC9` e usa os valores em `0x4C1C–0x4C68` para resolver máscaras e streams. Na captura real, `C022=1` foi observado em `0x5275`, mas não houve entrada em `0x4A73`; portanto, esse valor isolado não pode ser tratado como diálogo pronto.
 
 Os consumidores de `C022` agora formam uma lista concreta para o próximo trace, especialmente `0x4C1C`, `0x520F` e os chamadores que podem selecionar `0x4A73`. Nenhum patch narrativo será gerado a partir de referências estáticas sem validação dinâmica.
+
+## Cadeia A0: C206 aponta para tabela de comandos
+
+A rotina condicional `0x5012` foi desassemblada. Ela seleciona o banco `FFFF=0x16`, lê o ponteiro de `C206` e despacha pelo byte apontado para `0x5146`, `0x51A0`, `0x51AB`, `0x51B5`, `0x51BE`, `0x51CF`, `0x51EB`, `0x520C`, `0x5234`, `0x5270`, `0x5293`, `0x52B6`, `0x52D9` ou `0x52FE`. A captura dinâmica mostrou `C206=0x8380`, `C207=0x80` e chamada a `0x520F` com retorno para `0x401A`.
+
+A região física correspondente do banco 22, em `0x58380`, contém uma tabela de registros compactados com códigos como `0x23`, `0x3B`, `0x3C`, `0x3D`, `0x3E`, `0x37`, `0x3F`, `0x46`, `0x47`, `0x48` e `0x49`, intercalados com parâmetros de tarefa. Isso confirma que o ponteiro de C206 está no dispatcher de tarefas A0, não em um stream de texto. O próximo passo deve identificar qual registro/código gera o comando que alimenta o produtor de C022/C280, acompanhando a progressão de C206 e os retornos ao `0x401A`.
