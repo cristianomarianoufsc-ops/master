@@ -710,3 +710,9 @@ O mapa estático de C204 encontrou dois escritores no banco 21: `0x40FA` e `0x41
 O trace curto confirmou C204=1 em `0x40FD`, mas o alvo `0x406C` foi registrado repetidamente porque a instrumentação de `call_target` trata cada fetch do endereço como entrada; essa repetição não deve ser interpretada como múltiplas chamadas. O resultado ainda é útil para confirmar o armamento inicial, mas exige uma distinção futura entre entrada de CALL e execução do corpo para medir contagens com precisão.
 
 A cadeia sugere que a transição posterior para diálogo depende do scheduler consumir a inicialização de C204=2 e o ponteiro selecionado em C206, não de forçar C280. O próximo probe deve registrar apenas as entradas reais nos escritores `0x40FA/0x412D` e nas rotinas `0x5B78/0x5BAF`, usando retornos de pilha para eliminar falsos múltiplos de trace.
+
+## Deduplicação de entradas de sub-rotinas
+
+Foi criada `tools/deduplicate_call_trace.py` para reduzir eventos `call_target` por `(run, PC, return_address)`. Aplicada ao trace de C204, a ferramenta reduziu 29.954 registros brutos a 19 entradas únicas: quatro chamadas distintas a `0x5B3E`, uma entrada em `0x40FA` e quatorze chamadas reais a `0x406C` em blocos consecutivos. Assim, os registros repetidos em `0x406C` dentro de um mesmo bloco eram fetches recorrentes, enquanto a mudança do bloco confirma chamadas sucessivas do scheduler.
+
+O resultado melhora a auditoria de temporização, mas não transforma o trace em snapshot válido: o breakpoint `0x4A8D` não foi alcançado. O deduplicador deve ser usado junto do auditor para distinguir progresso entre frames de repetição interna dentro de uma mesma chamada.
