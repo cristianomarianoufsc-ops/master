@@ -740,3 +740,9 @@ Essa evidência descarta, para essa execução, a hipótese de que os streams cl
 A busca de CALL/JPs diretos para os escritores `0x53F2`, `0x5716`, `0x599F`, `0x5DED`, `0x615B` e `0x624D` encontrou referências diretas somente para `0x599F`, no banco 18, pelos pontos `0x5973` e `0x597C`. Os demais handlers não aparecem como alvos diretos no scan, o que é compatível com a arquitetura já observada de dispatcher indireto/tabelas de vetores.
 
 Esse resultado evita uma conclusão incorreta de que os demais escritores são código morto. A ativação deve ser rastreada pelo dispatcher de cena e pelos valores de C242/C205, não por uma lista de CALLs diretos. O próximo probe deve instrumentar entradas por PC nos seis handlers durante uma execução que atravesse o scheduler, preservando o contexto de retorno e o banco ativo.
+
+## Probe pós-loader com segunda pressão de START
+
+Foi executada uma captura de 16000 blocos com uma segunda pressão de START na janela dos blocos 15165–15184, imediatamente após a primeira ocorrência do ciclo em `0x412D`. O resultado permaneceu em `PC=0x4073`, sem registro de entrada em `0x4A73` ou `0x4A8D`.
+
+A amostra confirma que o input adicional não desbloqueia a transição. Após `C204=2` em `0x54C3` no bloco 15199, o fluxo volta aos ciclos periódicos (`C203` alternando 0/1), e C223/C238 continuam escritos apenas com zero nos pontos de inicialização. Também não houve leituras de C280/C281. Portanto, a barreira é lógica/estado do scheduler, não uma confirmação de controle ausente.
