@@ -175,6 +175,20 @@ def trace_event(kind, address=None, value=None, force=False):
         record["a0_state"] = {
             f"0x{addr:04X}": ram[ram_index(addr)] for addr in state_addresses
         }
+        if pc == 0x5012:
+            ptr = ram[ram_index(0xC206)] | (ram[ram_index(0xC207)] << 8)
+            if ptr < 0x4000:
+                opcode = banks[0][ptr]
+            elif ptr < 0x8000:
+                bank = mapper[0xFFFE] & 0x1F
+                opcode = banks[bank % len(banks)][ptr - 0x4000]
+            elif ptr < 0xC000:
+                bank = mapper[0xFFFF] & 0x1F
+                opcode = banks[bank % len(banks)][ptr - 0x8000]
+            else:
+                opcode = ram[ram_index(ptr)]
+            record["c206_pointer"] = f"0x{ptr:04X}"
+            record["a0_opcode"] = opcode
     trace_records.append(record)
 
 rom = a.rom.read_bytes()
