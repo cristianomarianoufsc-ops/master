@@ -658,3 +658,9 @@ Os consumidores de `C022` agora formam uma lista concreta para o próximo trace,
 A rotina condicional `0x5012` foi desassemblada. Ela seleciona o banco `FFFF=0x16`, lê o ponteiro de `C206` e despacha pelo byte apontado para `0x5146`, `0x51A0`, `0x51AB`, `0x51B5`, `0x51BE`, `0x51CF`, `0x51EB`, `0x520C`, `0x5234`, `0x5270`, `0x5293`, `0x52B6`, `0x52D9` ou `0x52FE`. A captura dinâmica mostrou `C206=0x8380`, `C207=0x80` e chamada a `0x520F` com retorno para `0x401A`.
 
 A região física correspondente do banco 22, em `0x58380`, contém uma tabela de registros compactados com códigos como `0x23`, `0x3B`, `0x3C`, `0x3D`, `0x3E`, `0x37`, `0x3F`, `0x46`, `0x47`, `0x48` e `0x49`, intercalados com parâmetros de tarefa. Isso confirma que o ponteiro de C206 está no dispatcher de tarefas A0, não em um stream de texto. O próximo passo deve identificar qual registro/código gera o comando que alimenta o produtor de C022/C280, acompanhando a progressão de C206 e os retornos ao `0x401A`.
+
+## Consumidor dinâmico de C022 em 0x520F
+
+A captura de 9000 blocos registrou uma chamada real a `0x520F` no bloco 5505, com retorno `0x401A`, `C022=1`, `C206=0x8383` e `C207=0x80`. A rotina lê `C022`, usa-o como índice na tabela local `0x5222` e grava o par correspondente em `C025`; para o índice `1`, o resultado é `C025=0x0020`. Em seguida, retorna ao dispatcher principal.
+
+Essa passagem confirma que C022 é um índice de estado usado para selecionar parâmetros de tarefa, não um ponteiro direto para texto. O retorno para `0x401A` também explica por que o fluxo continua no dispatcher sem entrar em `0x4A73`: o caminho A0 está consumindo e rearmando tarefas, enquanto a rotina de construção final permanece não selecionada. O próximo probe deve correlacionar o valor do byte em `C206` antes de cada chamada a `0x5012`, `0x520F` e `0x5270`, para identificar o código de tarefa que deveria conduzir à entrada `0x4A73`.
