@@ -722,3 +722,9 @@ O resultado melhora a auditoria de temporização, mas não transforma o trace e
 A execução curta com opcode fetch limitado à janela `0x40FA–0x4146` confirmou a sequência temporal: no bloco 285, `0x40FA` grava `C203=1` e `C204=1`; durante a preparação, a rotina copia dados e chama `0x5B3E`. No bloco 531, `0x412D` grava `C203=2` e `C204=2`, seleciona o ponteiro de tarefa via C202 e grava `C206=0x8080` em `0x4146`.
 
 O trace de opcode mostrou uma passagem única pela rotina de inicialização, enquanto o polling em `0x406C` ocorre nos blocos seguintes. A distinção confirma que C204 é um marcador de fase consumido pelo scheduler e que C206 só recebe a tabela A0 depois da segunda fase. Esse resultado substitui a contagem bruta anterior, que confundia fetches repetidos com chamadas múltiplas.
+
+## Auditoria dos streams classificados como texto
+
+Foi criada `tools/summarize_verified_streams.py` para resumir apenas entradas classificadas como `text_or_glyph_stream`. Nas ROMs japonesa e americana, o resultado foi idêntico: somente dois candidatos na tabela `0xB9EA`, ambos com cinco bytes e terminador `FF`: `0xBAAB = 00 1C 33 1D FF` e `0xBAB0 = 00 37 00 38 FF`.
+
+Como esses streams são curtos, não diferem entre as versões regionalizadas e não foram alcançados dinamicamente pelo executor, eles não constituem ainda diálogos narrativos verificáveis. A ferramenta deve ser usada como filtro de auditoria, não como autorização de patch. O próximo passo continua sendo capturar o caminho runtime que alimenta C223/C238 e comparar os códigos consumidos pelo loop `0x96CA–0x9779` antes de selecionar qualquer texto para tradução.
