@@ -684,3 +684,9 @@ A captura de 15000 blocos acompanhou a progressão do ponteiro C206 e dos estado
 O handler `0x50FD` foi confirmado como atualização de estado: grava `C200=0x10`, lê um ponteiro de dois bytes e salva-o em `C218`, avançando C206. No trace, `C218` percorreu a sequência `0x10,0x0F,0x0E,...,0x00`, enquanto `C200` voltou a zero em `0x5456`; mais tarde, `C200=0x02` foi observado em `0x50C1`. A sequência mostra uma máquina de estados que consome uma lista de tarefas e aguarda/contabiliza parâmetros, não um fluxo direto para texto.
 
 O auditor não liberou a captura como snapshot: o breakpoint `0x4A8D` continua não alcançado. O próximo passo é desassemblar os chamadores de `0x5456`, `0x544E` e `0x50C1`, correlacionando `C218` com a tabela de objetos e verificando se a tarefa `0x808A` é a que arma a seleção de diálogo.
+
+## Expiração de C218 e handler 0x50C1
+
+A captura estendida de 30000 blocos foi concluída pelo executor; o timeout ocorreu apenas no pós-processamento do shell, e o relatório JSON permaneceu íntegro. O dispatcher alcançou `0x50C1` no bloco 14937 após `C218` percorrer `0x10` até `0x00`. Nesse handler, `C200` foi armado com `0x02`, os bytes apontados foram copiados para `C208`, `C209` e `C23A`, e C206 avançou para `0x808C`.
+
+A continuação dinâmica confirmou uma nova atualização em `C20A=1` e `C20E=0x1E` no bloco 15199, enquanto `C280` ainda não foi escrito e `0x4A73/0x4A8D` não foram alcançados. O resultado é consistente com uma fase de temporização/objeto que antecede o diálogo, não com falha da IRQ. O auditor continua exigindo cautela porque o breakpoint narrativo não foi alcançado.
