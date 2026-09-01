@@ -664,3 +664,9 @@ A região física correspondente do banco 22, em `0x58380`, contém uma tabela d
 A captura de 9000 blocos registrou uma chamada real a `0x520F` no bloco 5505, com retorno `0x401A`, `C022=1`, `C206=0x8383` e `C207=0x80`. A rotina lê `C022`, usa-o como índice na tabela local `0x5222` e grava o par correspondente em `C025`; para o índice `1`, o resultado é `C025=0x0020`. Em seguida, retorna ao dispatcher principal.
 
 Essa passagem confirma que C022 é um índice de estado usado para selecionar parâmetros de tarefa, não um ponteiro direto para texto. O retorno para `0x401A` também explica por que o fluxo continua no dispatcher sem entrar em `0x4A73`: o caminho A0 está consumindo e rearmando tarefas, enquanto a rotina de construção final permanece não selecionada. O próximo probe deve correlacionar o valor do byte em `C206` antes de cada chamada a `0x5012`, `0x520F` e `0x5270`, para identificar o código de tarefa que deveria conduzir à entrada `0x4A73`.
+
+## Progressão dinâmica do dispatcher A0
+
+O trace de 9000 blocos mostrou três ciclos relevantes do dispatcher em `0x5012`: nos blocos 4981, 5505 e 6029, sempre com retorno para `0x401A`. No bloco 4981, `0x5012` despachou para `0x5270`; no bloco 5505, despachou para `0x520F`; nos demais ciclos seguintes não houve entrada em `0x4A73` nem em `0x4A8D`.
+
+A chamada a `0x520F` ocorreu com `C022=1`, `C206=0x8383`, `C207=0x80` e `C203=0`; a rotina selecionou o parâmetro `0x0020` na tabela `0x5222` e gravou `C025=0x0020`. A sequência confirma que o dispatcher está consumindo tarefas A0 e avançando o ponteiro, mas a condição que seleciona a inicialização final de diálogo ainda não foi atingida. O auditor continua classificando a captura como `risk` por breakpoint não alcançado, portanto nenhum estado foi promovido a snapshot válido.
