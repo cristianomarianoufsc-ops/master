@@ -734,3 +734,9 @@ Como esses streams são curtos, não diferem entre as versões regionalizadas e 
 Foi criada `tools/analyze_runtime_text_reads.py` para separar eventos de estado do decoder de texto. Aplicada ao trace A0 de 12000 blocos, ela encontrou somente seis eventos: três escritas em C223 e três em C238, todas com valor `0`, nos pontos de inicialização `0x00AD`, `0x4939` e `0x4496`. Não houve eventos no loop de texto `0x96CA–0x9779`, nem leituras úteis de C280/C281.
 
 Essa evidência descarta, para essa execução, a hipótese de que os streams classificados estaticamente já estejam sendo consumidos como narrativa. O pipeline de tradução deve continuar bloqueado para diálogos até que C223/C238 recebam valores não nulos e o decoder seja alcançado dinamicamente. O próximo probe deve concentrar-se na rotina que deveria preencher C223/C238 após a conclusão do loader de objetos.
+
+## Xrefs dos handlers de C223/C238
+
+A busca de CALL/JPs diretos para os escritores `0x53F2`, `0x5716`, `0x599F`, `0x5DED`, `0x615B` e `0x624D` encontrou referências diretas somente para `0x599F`, no banco 18, pelos pontos `0x5973` e `0x597C`. Os demais handlers não aparecem como alvos diretos no scan, o que é compatível com a arquitetura já observada de dispatcher indireto/tabelas de vetores.
+
+Esse resultado evita uma conclusão incorreta de que os demais escritores são código morto. A ativação deve ser rastreada pelo dispatcher de cena e pelos valores de C242/C205, não por uma lista de CALLs diretos. O próximo probe deve instrumentar entradas por PC nos seis handlers durante uma execução que atravesse o scheduler, preservando o contexto de retorno e o banco ativo.
